@@ -276,7 +276,8 @@ input[type="time"]:focus {
     border: 1px solid rgba(26, 44, 66, 0.4) !important;
     border-left: 4px solid var(--subject-color) !important;
     color: #ffffff !important;
-    text-shadow: none !important; /* Quitar bloom/brillo para mayor legibilidad */
+    text-shadow: none !important;
+    /* Quitar bloom/brillo para mayor legibilidad */
     box-shadow: inset 0 0 5px rgba(10, 132, 255, 0.05) !important;
     border-radius: 0px !important;
 }
@@ -592,7 +593,7 @@ body.theme-light #clear-data-btn:hover {
 }
 
 #clear-data-btn::after {
-    content: "[F1] BORRAR" !important;
+    content: "BORRAR" !important;
 }
 
 #open-sync-btn {
@@ -637,7 +638,7 @@ body.theme-light #open-sync-btn:hover {
 }
 
 #open-sync-btn::after {
-    content: "[F2] ACTUALIZAR" !important;
+    content: "ACTUALIZAR" !important;
 }
 
 #sync-status-text {
@@ -889,10 +890,13 @@ body.theme-light .footer-right-text {
 }
 
 /* Evitar fondo blanco en rubber-banding/elastic scroll de iOS/macOS */
-html.theme-dark {
+html.theme-dark,
+html:has(body.theme-dark) {
     background-color: #0c131d !important;
 }
-html.theme-light {
+
+html.theme-light,
+html:has(body.theme-light) {
     background-color: #ffffff !important;
 }
 
@@ -918,6 +922,7 @@ html.theme-light {
     background-color: rgba(255, 159, 10, 0.04) !important;
     border-color: rgba(255, 159, 10, 0.2) !important;
 }
+
 body.theme-light .commission-option:hover {
     background-color: rgba(234, 88, 12, 0.04) !important;
     border-color: rgba(234, 88, 12, 0.2) !important;
@@ -927,15 +932,18 @@ body.theme-light .commission-option:hover {
 .commission-option:has(.commission-radio:checked) {
     opacity: 1 !important;
     background-color: #101926 !important;
-    border: 1px solid #ff9f0a !important; /* Resaltado naranja retro */
+    border: 1px solid #ff9f0a !important;
+    /* Resaltado naranja retro */
     box-shadow: 0 0 8px rgba(255, 159, 10, 0.15) !important;
 }
 
 /* Opción SELECCIONADA en modo claro */
 body.theme-light .commission-option:has(.commission-radio:checked) {
     opacity: 1 !important;
-    background-color: #fff7ed !important; /* Fondo naranja/crema claro */
-    border: 1px solid #ea580c !important; /* Borde naranja claro */
+    background-color: #fff7ed !important;
+    /* Fondo naranja/crema claro */
+    border: 1px solid #ea580c !important;
+    /* Borde naranja claro */
     box-shadow: 0 0 8px rgba(234, 88, 12, 0.1) !important;
 }
 

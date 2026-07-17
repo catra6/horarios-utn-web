@@ -2029,9 +2029,9 @@ body.theme-dark .zoom-slider {
     display: none;
 }
 
-html.theme-dark {
+html.theme-dark, html:has(body.theme-dark) {
     background-color: var(--bg-primary, #0f172a) !important;
 }
-html.theme-light {
+html.theme-light, html:has(body.theme-light) {
     background-color: var(--bg-primary, #f8fafc) !important;
 }
