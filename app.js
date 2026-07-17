@@ -16,14 +16,9 @@ let state = {
 // 3. Inicialización del Tema
 function initTheme() {
     const savedTheme = localStorage.getItem('horauni_theme');
-    if (savedTheme === 'dark') {
-        document.body.className = 'theme-dark';
-    } else if (savedTheme === 'light') {
-        document.body.className = 'theme-light';
-    } else {
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        document.body.className = prefersDark ? 'theme-dark' : 'theme-light';
-    }
+    const theme = (savedTheme === 'dark') ? 'theme-dark' : 'theme-light';
+    document.body.className = theme;
+    document.documentElement.className = theme;
 }
 
 // 3b. Popup de Confirmación Personalizado
@@ -110,6 +105,15 @@ function loadOfficialState() {
     updateSyncStatusUI();
 }
 
+function formatSyncDate(date) {
+    const d = String(date.getDate()).padStart(2, '0');
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const y = String(date.getFullYear()).slice(-2);
+    const hr = String(date.getHours()).padStart(2, '0');
+    const min = String(date.getMinutes()).padStart(2, '0');
+    return `${d}/${m}/${y}, ${hr}:${min}`;
+}
+
 function updateSyncStatusUI() {
     const syncStatusText = document.getElementById('sync-status-text');
     const syncBtn = document.getElementById('open-sync-btn');
@@ -117,7 +121,7 @@ function updateSyncStatusUI() {
     if (!syncStatusText) return;
 
     const text = state.officialUpdate
-        ? `Sync: ${state.officialUpdate}`
+        ? `Última actualización: ${state.officialUpdate}`
         : 'Horarios oficiales no cargados';
 
     syncStatusText.innerText = text;
@@ -160,10 +164,7 @@ function processOfficialHTML(htmlText) {
     }
 
     state.officialSubjects = subjects;
-    state.officialUpdate = new Date().toLocaleString('es-AR', {
-        day: '2-digit', month: '2-digit', year: 'numeric',
-        hour: '2-digit', minute: '2-digit'
-    });
+    state.officialUpdate = formatSyncDate(new Date());
 
     saveOfficialState();
     updateSyncStatusUI();
@@ -192,7 +193,7 @@ async function syncOfficialSchedules() {
         console.error('Error en sincronización:', error);
         if (statusText) {
             statusText.innerText = state.officialUpdate
-                ? `Sync: ${state.officialUpdate} (error al actualizar)`
+                ? `Última actualización: ${state.officialUpdate} (error al actualizar)`
                 : 'Error al cargar horarios';
         }
     } finally {
@@ -743,6 +744,7 @@ function updateTimetable() {
     }
 
     // D. Renderizar los Eventos Activos
+    const renderedConflictKeys = new Set();
     activeSlots.forEach(slot => {
         const eventEl = document.createElement('div');
         const slotKey = `${slot.subjectId}_${slot.commissionId}_${slot.day}_${slot.startSlot}_${slot.endSlot}`;
@@ -763,18 +765,22 @@ function updateTimetable() {
                 Math.max(other.startSlot, slot.startSlot) < Math.min(other.endSlot, slot.endSlot)
             );
             const subjectNames = [...new Set(overlaps.map(o => o.subjectName))].sort();
+            const conflictGroupKey = `${slot.day}_${subjectNames.join('|')}`;
 
             let conflictHTML = '';
-            if (subjectNames.length > 1) {
-                const last = subjectNames.pop();
-                conflictHTML = `Conflicto entre <strong>${subjectNames.join(', ')}</strong> y <strong>${last}</strong>`;
-            } else {
-                conflictHTML = `Conflicto en <strong>${slot.subjectName}</strong>`;
+            if (!renderedConflictKeys.has(conflictGroupKey)) {
+                renderedConflictKeys.add(conflictGroupKey);
+                if (subjectNames.length > 1) {
+                    const last = subjectNames.pop();
+                    conflictHTML = `Conflicto entre <strong>${subjectNames.join(', ')}</strong> y <strong>${last}</strong>`;
+                } else {
+                    conflictHTML = `Conflicto en <strong>${slot.subjectName}</strong>`;
+                }
             }
 
-            eventEl.innerHTML = `
+            eventEl.innerHTML = conflictHTML ? `
                 <div class="event-subject-conflict" title="Superposición de horarios">${conflictHTML}</div>
-            `;
+            ` : '';
         } else {
             const classroomHTML = slot.classroom ? `<div class="event-classroom" title="${slot.classroom}">${slot.classroom}</div>` : '';
             const teacherHTML = slot.teacher ? `<div class="event-teacher" title="${slot.teacher}">${slot.teacher}</div>` : '';
@@ -1092,9 +1098,11 @@ document.getElementById('add-subject-btn').addEventListener('click', openAddSubj
 document.getElementById('theme-toggle').addEventListener('click', () => {
     if (document.body.classList.contains('theme-dark')) {
         document.body.className = 'theme-light';
+        document.documentElement.className = 'theme-light';
         localStorage.setItem('horauni_theme', 'light');
     } else {
         document.body.className = 'theme-dark';
+        document.documentElement.className = 'theme-dark';
         localStorage.setItem('horauni_theme', 'dark');
     }
 });
