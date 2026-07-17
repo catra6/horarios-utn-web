@@ -2024,3 +2024,14 @@ body.theme-dark .zoom-slider {
     background: var(--color-brand-hover);
     transform: scale(1.2);
 }
+
+.app-footer {
+    display: none;
+}
+
+html.theme-dark {
+    background-color: var(--bg-primary, #0f172a) !important;
+}
+html.theme-light {
+    background-color: var(--bg-primary, #f8fafc) !important;
+}
