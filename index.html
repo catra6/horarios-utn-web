@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horarios UTN</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="theme-light">
+    <header class="app-header">
+        <div class="header-logo">
+            <svg class="icon-logo" viewBox="0 0 24 24" width="24" height="24">
+                <path fill="currentColor"
+                    d="M12 3L1 9l11 6l9-4.91V17h2V9L12 3M5.89 11.5L12 14.83l6.11-3.33l2.22 1.21L12 18.25l-8.33-4.54l2.22-1.21M12 20.75l6.3-3.43l1.1 0.6L12 22.25L4.6 17.92l1.1-0.6l6.3 3.43Z" />
+            </svg>
+            <h1>Horarios</h1>
+            <span class="badge">UTN</span>
+        </div>
+        <div class="header-actions">
+            <button id="clear-data-btn" class="btn btn-secondary btn-icon-text"
+                title="Borrar todos los datos y reiniciar">
+                <svg viewBox="0 0 24 24" width="16" height="16">
+                    <path fill="currentColor"
+                        d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12Z" />
+                </svg>
+                <span>Borrar todo</span>
+            </button>
+            <button id="theme-toggle" class="btn-theme" aria-label="Cambiar tema">
+                <!-- Sun Icon -->
+                <svg class="sun-icon" viewBox="0 0 24 24" width="20" height="20">
+                    <path fill="currentColor"
+                        d="M12 7a5 5 0 1 1 0 10a5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6a3 3 0 0 0 0-6Zm0-9h2v3h-2V0Zm0 18h2v3h-2v-3ZM3.515 4.929l1.414-1.414L7.05 5.636L5.636 7.05L3.515 4.93Zm13.435 13.435l1.414-1.414l2.122 2.121l-1.414 1.414l-2.122-2.121ZM0 12h3v2H0v-2Zm18 0h3v2h-3v-2ZM4.929 20.485l-1.414-1.414l2.121-2.122l1.414 1.414l-2.121 2.122ZM19.071 5.636l-1.414-1.414l2.122-2.121l1.414 1.414l-2.122 2.121Z" />
+                </svg>
+                <!-- Moon Icon -->
+                <svg class="moon-icon" viewBox="0 0 24 24" width="20" height="20">
+                    <path fill="currentColor"
+                        d="M12.3 22h-.1c-5.5 0-10-4.5-10-10C2.2 6.8 6.4 2.5 11.7 2c.6 0 1.2.4 1.4.9c.2.6 0 1.2-.5 1.6c-2.1 1.7-3.3 4.2-3.3 6.9c0 4.8 3.9 8.8 8.8 8.8c2.7 0 5.2-1.2 6.9-3.3c.4-.5 1-.6 1.6-.4c.6.2.9.8.9 1.4c-.6 5.4-4.8 9.6-10.2 10.1c-.3 0-.7 0-1 .1ZM11.1 4c-3.9.7-6.9 4.1-6.9 8.2c0 4.6 3.7 8.3 8.3 8.3c4.1 0 7.5-3 8.2-6.9c-1 .5-2.2.8-3.4.8c-4.8 0-8.8-3.9-8.8-8.8c0-1.2.3-2.4.8-3.4Z" />
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <main class="app-layout">
+        <!-- Panel Izquierdo: Controles -->
+        <section class="panel-left">
+            <div class="panel-header">
+                <h2>Materias</h2>
+                <button id="add-subject-btn" class="btn btn-primary btn-icon-text">
+                    <svg viewBox="0 0 24 24" width="18" height="18">
+                        <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2Z" />
+                    </svg>
+                    <span>Añadir materia</span>
+                </button>
+            </div>
+
+            <div class="sync-status-card" id="sync-status-card">
+                <div class="sync-status-info">
+                    <svg viewBox="0 0 24 24" width="16" height="16" class="icon-sync">
+                        <path fill="currentColor"
+                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+                    </svg>
+                    <span id="sync-status-text">Cargando horarios...</span>
+                </div>
+                <button id="open-sync-btn" class="btn btn-secondary btn-small"
+                    title="Re-sincronizar horarios desde GitHub">
+                    <svg viewBox="0 0 24 24" width="14" height="14">
+                        <path fill="currentColor"
+                            d="M19 8l-4 4h3c0 3.31-2.69 6-6 6-1.01 0-1.97-.25-2.8-.7l-1.46 1.46C8.97 19.54 10.43 20 12 20c4.42 0 8-3.58 8-8h3l-4-4zM6 12c0-3.31 2.69-6 6-6 1.01 0 1.97.25 2.8.7l1.46-1.46C15.03 4.46 13.57 4 12 4c-4.42 0-8 3.58-8 8H1l4 4 4-4H6z" />
+                    </svg>
+                </button>
+            </div>
+
+            <div id="subjects-container" class="subjects-list">
+                <!-- Se poblará dinámicamente con JavaScript -->
+                <div class="empty-state">
+                    <svg viewBox="0 0 24 24" width="48" height="48">
+                        <path fill="currentColor"
+                            d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2m-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2Z" />
+                    </svg>
+                    <p>No tienes materias cargadas aún.</p>
+                    <p class="subtext">Haz clic en "Añadir" para comenzar.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Panel Derecho: Timetable -->
+        <section class="panel-right">
+            <div class="timetable-card">
+                <div class="timetable-toolbar">
+                    <span class="toolbar-label">Altura de tabla:</span>
+                    <div class="btn-group" id="zoom-controls">
+                        <button id="zoom-compact-btn" class="btn btn-secondary btn-small"
+                            title="Compacto">Compacto</button>
+                        <button id="zoom-normal-btn" class="btn btn-secondary btn-small active"
+                            title="Normal">Normal</button>
+                        <button id="zoom-spacious-btn" class="btn btn-secondary btn-small"
+                            title="Espacioso">Espacioso</button>
+                    </div>
+                </div>
+                <div class="timetable-wrapper">
+                    <div class="timetable-grid" id="timetable-grid" data-size="normal">
+                        <!-- Las cabeceras de días y bloques de horas se generarán por JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel de Colisiones -->
+            <div id="collision-panel" class="collision-card hidden">
+                <div class="collision-header">
+                    <svg class="icon-warning" viewBox="0 0 24 24" width="24" height="24">
+                        <path fill="currentColor"
+                            d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10s10-4.5 10-10S17.5 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+                    </svg>
+                    <h3>Conflictos de horario detectados</h3>
+                </div>
+                <ul id="collision-list" class="collision-list">
+                    <!-- Se listarán los conflictos aquí -->
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal para Añadir/Editar Materia -->
+    <div id="subject-modal" class="modal-overlay hidden">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 id="modal-title">Añadir materia</h3>
+                <button id="modal-close-btn" class="btn-close" aria-label="Cerrar modal">&times;</button>
+            </div>
+
+            <!-- Tabs para alternar entre Oficial y Manual -->
+            <div class="modal-tabs" id="subject-modal-tabs">
+                <button type="button" class="modal-tab-btn active" id="tab-official-btn">Buscar materia oficial</button>
+                <button type="button" class="modal-tab-btn" id="tab-manual-btn">Creación manual</button>
+            </div>
+
+            <!-- Contenido 1: Buscar Materia -->
+            <div id="modal-official-section" class="modal-section-content">
+                <div class="modal-body">
+                    <p class="search-notice"> Agregá las materias anuales y de este cuatrimestre buscando acá</p>
+
+                    <!-- Buscador -->
+                    <div class="form-group search-group">
+                        <div class="search-input-wrapper">
+                            <input type="text" id="subject-search-input"
+                                placeholder="Escribe el nombre de la materia... (ej. Análisis, Álgebra, Física)">
+                            <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18">
+                                <path fill="currentColor"
+                                    d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z" />
+                            </svg>
+                        </div>
+                        <div id="search-results-list" class="search-results-list hidden">
+                            <!-- Resultados dinámicos -->
+                        </div>
+                    </div>
+
+                    <!-- Detalle de la materia seleccionada -->
+                    <div id="official-subject-detail" class="official-subject-detail hidden">
+                        <div class="detail-header-card">
+                            <h4 id="detail-subject-name">INFORMÁTICA I</h4>
+                            <span class="badge badge-plan" id="detail-subject-plan">Plan 1995</span>
+                        </div>
+
+                        <div class="detail-info-title">Comisiones y horarios disponibles:</div>
+                        <div class="commissions-detail-list" id="commissions-detail-list">
+                            <!-- Se poblará con comisiones, aulas, profesores y horas -->
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary modal-cancel-btn">Cancelar</button>
+                    <button type="button" id="add-official-subject-btn" class="btn btn-primary" disabled>Añadir
+                        materia</button>
+                </div>
+            </div>
+
+            <!-- Contenido 2: Creación Manual (Formulario Original) -->
+            <form id="subject-form" autocomplete="off" class="modal-section-content hidden">
+                <input type="hidden" id="edit-subject-id">
+                <div class="modal-body">
+
+                    <!-- Nombre de la Materia -->
+                    <div class="form-group">
+                        <label for="subject-name">Nombre de la materia *</label>
+                        <input type="text" id="subject-name" required
+                            placeholder="Ej. Álgebra I, Física General, Introducción a la Programación...">
+                    </div>
+
+                    <!-- Comisiones -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h4>Comisiones</h4>
+                            <button type="button" id="add-commission-btn"
+                                class="btn btn-secondary btn-small btn-icon-text">
+                                <svg viewBox="0 0 24 24" width="14" height="14">
+                                    <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2Z" />
+                                </svg>
+                                <span>Añadir comisión</span>
+                            </button>
+                        </div>
+
+                        <div id="commissions-form-list" class="commissions-form-list">
+                            <!-- Se añadirán comisiones dinámicamente con JS -->
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary modal-cancel-btn">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar materia</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Modal de Confirmación Personalizado -->
+    <div id="confirm-modal" class="confirm-overlay hidden">
+        <div class="confirm-box">
+            <div class="confirm-icon">
+                <svg viewBox="0 0 24 24" width="32" height="32">
+                    <path fill="currentColor"
+                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+                </svg>
+            </div>
+            <p id="confirm-message" class="confirm-message"></p>
+            <div class="confirm-actions">
+                <button id="confirm-cancel-btn" class="btn btn-secondary" type="button">Cancelar</button>
+                <button id="confirm-ok-btn" class="btn btn-danger" type="button">Eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
