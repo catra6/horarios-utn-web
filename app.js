@@ -1,5 +1,5 @@
 /* ==========================================================================
-   HoraUni - Lógica de la Aplicación (JavaScript Vanilla)
+   Horarios UTN - Lógica de la Aplicación (JavaScript Vanilla)
    ========================================================================== */
 
 // 1. Estado de la Aplicación
@@ -11,81 +11,7 @@ let state = {
     officialUpdate: null  // Fecha/hora de última sincronización
 };
 
-// 2. Datos de Ejemplo (Se cargan si localStorage está vacío)
-const SAMPLE_SUBJECTS = [
-    {
-        id: 's_sample_fisica',
-        name: 'Física General I',
-        colorHue: 205, // Celeste pastel
-        commissions: [
-            {
-                id: 'c_fisica_c1',
-                name: 'Comisión 1 (Mañana)',
-                slots: [
-                    { day: '1', startTime: '08:30', endTime: '11:00' }, // Lunes
-                    { day: '3', startTime: '08:30', endTime: '11:00' }  // Miércoles
-                ]
-            },
-            {
-                id: 'c_fisica_c2',
-                name: 'Comisión 2 (Tarde)',
-                slots: [
-                    { day: '2', startTime: '14:00', endTime: '16:30' }, // Martes
-                    { day: '4', startTime: '14:00', endTime: '16:30' }  // Jueves
-                ]
-            }
-        ]
-    },
-    {
-        id: 's_sample_algebra',
-        name: 'Álgebra Lineal',
-        colorHue: 35, // Naranja pastel
-        commissions: [
-            {
-                id: 'c_algebra_c1',
-                name: 'Comisión Única',
-                slots: [
-                    { day: '1', startTime: '10:00', endTime: '13:00' }, // Lunes (provoca colisión con Física C1 de 10:00 a 11:00)
-                    { day: '4', startTime: '10:00', endTime: '13:00' }  // Jueves
-                ]
-            },
-            {
-                id: 'c_algebra_alt',
-                name: 'Comisión Alternativa',
-                slots: [
-                    { day: '5', startTime: '08:30', endTime: '11:30' }  // Viernes
-                ]
-            }
-        ]
-    },
-    {
-        id: 's_sample_prog',
-        name: 'Introducción a la Programación',
-        colorHue: 120, // Verde pastel
-        commissions: [
-            {
-                id: 'c_prog_c1',
-                name: 'Comisión Noche',
-                slots: [
-                    { day: '2', startTime: '18:00', endTime: '21:00' }  // Martes
-                ]
-            },
-            {
-                id: 'c_prog_c2',
-                name: 'Comisión Tarde',
-                slots: [
-                    { day: '3', startTime: '14:00', endTime: '17:00' }  // Miércoles
-                ]
-            }
-        ]
-    }
-];
-
-const SAMPLE_SELECTIONS = {
-    's_sample_fisica': 'c_fisica_c1',
-    's_sample_algebra': 'c_algebra_c1',
-    's_sample_prog': 'c_prog_c2'
-};
+// 2. Datos de Ejemplo (No utilizados)
 
 // 3. Inicialización del Tema
 function initTheme() {
@@ -576,8 +502,8 @@ function renderSubjectsList() {
                 <svg viewBox="0 0 24 24" width="48" height="48">
                     <path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2m-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2Z"/>
                 </svg>
-                <p>No tienes materias cargadas aún.</p>
-                <p class="subtext">Haz clic en "Añadir materia" para comenzar.</p>
+                 <p>No tenés materias cargadas.</p>
+                 <p class="subtext">Hacé clic en "Añadir materia" para comenzar.</p>
             </div>
         `;
         return;
@@ -1185,37 +1111,39 @@ document.getElementById('clear-data-btn').addEventListener('click', async () => 
 });
 
 function initTableSize() {
-    const savedSize = localStorage.getItem('horauni_tablesize') || 'normal';
+    const savedVal = localStorage.getItem('horauni_tablesize_val') || '1.3333';
     const grid = document.getElementById('timetable-grid');
-    grid.setAttribute('data-size', savedSize);
+    const slider = document.getElementById('zoom-slider');
 
-    document.querySelectorAll('#zoom-controls button').forEach(btn => {
-        btn.classList.remove('active');
-    });
-
-    const activeBtn = document.getElementById(`zoom-${savedSize}-btn`);
-    if (activeBtn) {
-        activeBtn.classList.add('active');
+    if (slider) {
+        slider.value = savedVal;
     }
-}
 
-document.getElementById('zoom-controls').addEventListener('click', (e) => {
-    const btn = e.target.closest('button');
-    if (!btn) return;
+    const val = parseFloat(savedVal);
+    grid.style.setProperty('--grid-row-height-1min', `${val}px`);
 
     let size = 'normal';
-    if (btn.id === 'zoom-compact-btn') size = 'compact';
-    else if (btn.id === 'zoom-spacious-btn') size = 'spacious';
-
-    const grid = document.getElementById('timetable-grid');
+    if (val < 1.1) size = 'compact';
+    else if (val > 1.7) size = 'spacious';
     grid.setAttribute('data-size', size);
-    localStorage.setItem('horauni_tablesize', size);
+}
 
-    document.querySelectorAll('#zoom-controls button').forEach(b => {
-        b.classList.remove('active');
+// Evento de control de zoom con slider
+const zoomSlider = document.getElementById('zoom-slider');
+if (zoomSlider) {
+    zoomSlider.addEventListener('input', (e) => {
+        const val = parseFloat(e.target.value);
+        const grid = document.getElementById('timetable-grid');
+        grid.style.setProperty('--grid-row-height-1min', `${val}px`);
+
+        let size = 'normal';
+        if (val < 1.1) size = 'compact';
+        else if (val > 1.7) size = 'spacious';
+        grid.setAttribute('data-size', size);
+
+        localStorage.setItem('horauni_tablesize_val', val.toString());
     });
-    btn.classList.add('active');
-});
+}
 
 // Inicialización de las funciones de Búsqueda y Sincronización
 let selectedOfficialSubject = null;
@@ -1400,12 +1328,314 @@ function initSyncAndSearchFeatures() {
     }
 }
 
+/* ==========================================================================
+   Funciones de Integración con Google Calendar API
+   ========================================================================== */
+
+const gcalModal = document.getElementById('gcal-modal');
+let tokenClient = null;
+
+function openGCalModal() {
+    // Reiniciar UI de estado
+    document.getElementById('gcal-status-container').classList.add('hidden');
+
+    // Habilitar los botones de cuatrimestre
+    const btnC1 = document.getElementById('btn-cuatrimestre-1');
+    const btnC2 = document.getElementById('btn-cuatrimestre-2');
+    if (btnC1) btnC1.disabled = false;
+    if (btnC2) btnC2.disabled = false;
+
+    gcalModal.classList.remove('hidden');
+    document.body.classList.add('modal-open');
+}
+
+function closeGCalModal() {
+    gcalModal.classList.add('hidden');
+    document.body.classList.remove('modal-open');
+}
+
+function getFirstOccurrence(startDateStr, targetDayStr) {
+    // targetDayStr es '1' (Lunes) a '6' (Sábado)
+    const targetDayNum = parseInt(targetDayStr, 10);
+    const start = new Date(startDateStr + 'T00:00:00');
+    const startDay = start.getDay(); // 0 (Domingo) a 6 (Sábado)
+
+    let daysToAdd = targetDayNum - startDay;
+    if (daysToAdd < 0) {
+        daysToAdd += 7;
+    }
+
+    const result = new Date(start);
+    result.setDate(start.getDate() + daysToAdd);
+    return result;
+}
+
+function formatDateAndTime(dateObj, timeStr) {
+    const yyyy = dateObj.getFullYear();
+    const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const dd = String(dateObj.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}T${timeStr}:00`;
+}
+
+function getGoogleColorId(hue) {
+    // Convierte el tono HSL (0-360) a los IDs de color de Google Calendar (1-11)
+    if (hue >= 340 || hue < 20) return "11"; // Rojo (Tomato)
+    if (hue >= 20 && hue < 50) return "6";   // Naranja (Tangerine)
+    if (hue >= 50 && hue < 80) return "5";   // Amarillo (Banana)
+    if (hue >= 80 && hue < 140) return "10";  // Verde oscuro (Basil)
+    if (hue >= 140 && hue < 170) return "2";  // Verde claro (Sage)
+    if (hue >= 170 && hue < 200) return "7";  // Celeste (Peacock)
+    if (hue >= 200 && hue < 230) return "9";  // Azul (Blueberry)
+    if (hue >= 230 && hue < 260) return "1";  // Lavanda
+    if (hue >= 260 && hue < 290) return "3";  // Púrpura (Grape)
+    if (hue >= 290 && hue < 340) return "4";  // Rosa (Flamingo)
+    return "8"; // Gris (Graphite) como fallback
+}
+
+async function executeExportProcess(accessToken, startDate, endDate, updateStatus) {
+    // 1. Recopilar materias/comisiones activas seleccionadas
+    const activeSlots = [];
+    state.subjects.forEach(subject => {
+        const selectedId = state.selections[subject.id];
+        if (selectedId && selectedId !== 'none') {
+            const commission = subject.commissions.find(c => c.id === selectedId);
+            if (commission) {
+                commission.slots.forEach(slot => {
+                    activeSlots.push({
+                        subjectName: subject.name,
+                        commissionName: commission.name,
+                        colorHue: subject.colorHue,
+                        day: slot.day,
+                        startTime: slot.startTime,
+                        endTime: slot.endTime,
+                        classroom: slot.classroom || '',
+                        teacher: slot.teacher || ''
+                    });
+                });
+            }
+        }
+    });
+
+    if (activeSlots.length === 0) {
+        throw new Error('No tenés materias con comisión seleccionada. Seleccioná alguna comisión en el panel izquierdo primero.');
+    }
+
+    // 2. Buscar calendarios anteriores
+    updateStatus('Buscando calendarios anteriores...');
+    const listRes = await fetch('https://www.googleapis.com/calendar/v3/users/me/calendarList', {
+        headers: {
+            'Authorization': `Bearer ${accessToken}`
+        }
+    });
+
+    if (!listRes.ok) {
+        const err = await listRes.json().catch(() => ({}));
+        throw new Error('No se pudo acceder a tu lista de calendarios: ' + (err.error?.message || listRes.statusText));
+    }
+
+    const listData = await listRes.json();
+    const existingCalendars = listData.items || [];
+    const calendarsToDelete = existingCalendars.filter(cal => cal.summary === 'Horarios UTN');
+
+    // 3. Eliminar calendarios anteriores duplicados
+    if (calendarsToDelete.length > 0) {
+        updateStatus(`Limpiando ${calendarsToDelete.length} calendario(s) anterior(es)...`);
+        for (const cal of calendarsToDelete) {
+            const delRes = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${cal.id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+            if (!delRes.ok) {
+                console.warn(`No se pudo eliminar el calendario anterior: ${cal.id}`);
+            }
+        }
+    }
+
+    // 4. Crear nuevo calendario
+    updateStatus('Creando calendario nuevo...');
+    const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Argentina/Buenos_Aires';
+    const createRes = await fetch('https://www.googleapis.com/calendar/v3/calendars', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            summary: 'Horarios UTN',
+            description: 'Calendario creado automaticamente',
+            timeZone: userTimeZone
+        })
+    });
+
+    if (!createRes.ok) {
+        const err = await createRes.json().catch(() => ({}));
+        throw new Error('No se pudo crear el nuevo calendario: ' + (err.error?.message || createRes.statusText));
+    }
+
+    const newCalendar = await createRes.json();
+    const newCalendarId = newCalendar.id;
+
+    // 5. Insertar eventos recurrentes con su color correspondiente
+    const dayCodes = { '1': 'MO', '2': 'TU', '3': 'WE', '4': 'TH', '5': 'FR', '6': 'SA' };
+    const untilFormatted = endDate.replace(/-/g, '') + 'T235959Z';
+
+    for (let i = 0; i < activeSlots.length; i++) {
+        const slot = activeSlots[i];
+        updateStatus(`Exportando materia ${i + 1} de ${activeSlots.length}: ${slot.subjectName}...`);
+
+        const firstOccurrence = getFirstOccurrence(startDate, slot.day);
+        const startDateTime = formatDateAndTime(firstOccurrence, slot.startTime);
+        const endDateTime = formatDateAndTime(firstOccurrence, slot.endTime);
+        const byDay = dayCodes[slot.day];
+        const recurrenceRule = `RRULE:FREQ=WEEKLY;UNTIL=${untilFormatted};BYDAY=${byDay}`;
+
+        const eventBody = {
+            summary: `${slot.subjectName} (${slot.commissionName})`,
+            location: slot.classroom || '',
+            description: `Materia: ${slot.subjectName}\nComisión: ${slot.commissionName}\nDocente: ${slot.teacher || 'No especificado'}`,
+            colorId: getGoogleColorId(slot.colorHue),
+            start: {
+                dateTime: startDateTime,
+                timeZone: userTimeZone
+            },
+            end: {
+                dateTime: endDateTime,
+                timeZone: userTimeZone
+            },
+            recurrence: [
+                recurrenceRule
+            ]
+        };
+
+        const eventRes = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${newCalendarId}/events`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(eventBody)
+        });
+
+        if (!eventRes.ok) {
+            const err = await eventRes.json().catch(() => ({}));
+            throw new Error(`Error al exportar la materia ${slot.subjectName}: ` + (err.error?.message || eventRes.statusText));
+        }
+    }
+
+    updateStatus('¡Exportación completada con éxito!');
+
+    // Cerrar el modal automáticamente tras 2 segundos
+    setTimeout(() => {
+        closeGCalModal();
+    }, 2000);
+}
+
+function startGoogleCalendarExport(clientId, startDate, endDate) {
+    const statusContainer = document.getElementById('gcal-status-container');
+    const statusText = document.getElementById('gcal-status-text');
+    const btnC1 = document.getElementById('btn-cuatrimestre-1');
+    const btnC2 = document.getElementById('btn-cuatrimestre-2');
+
+    function updateStatus(text, isError = false) {
+        statusContainer.classList.remove('hidden');
+        statusText.innerText = text;
+        if (isError) {
+            statusContainer.style.backgroundColor = 'var(--color-danger-light)';
+            statusContainer.style.color = 'var(--color-danger)';
+            statusContainer.style.borderColor = 'var(--color-danger-border)';
+            if (btnC1) btnC1.disabled = false;
+            if (btnC2) btnC2.disabled = false;
+        } else {
+            statusContainer.style.backgroundColor = 'var(--color-brand-light)';
+            statusContainer.style.color = 'var(--color-brand)';
+            statusContainer.style.borderColor = 'rgba(59, 130, 246, 0.2)';
+        }
+    }
+
+    try {
+        if (btnC1) btnC1.disabled = true;
+        if (btnC2) btnC2.disabled = true;
+        updateStatus('Iniciando sesión con Google...');
+
+        if (typeof google === 'undefined' || !google.accounts || !google.accounts.oauth2) {
+            throw new Error('La librería Google Identity Services no está cargada. Verificá tu conexión a internet o si hay extensiones bloqueadoras (ej. uBlock/AdBlock).');
+        }
+
+        // Crear TokenClient de Google Identity Services
+        tokenClient = google.accounts.oauth2.initTokenClient({
+            client_id: clientId,
+            scope: 'https://www.googleapis.com/auth/calendar',
+            callback: async (tokenResponse) => {
+                if (tokenResponse.error) {
+                    updateStatus('Error de Google OAuth: ' + tokenResponse.error, true);
+                    return;
+                }
+
+                try {
+                    const accessToken = tokenResponse.access_token;
+                    await executeExportProcess(accessToken, startDate, endDate, updateStatus);
+                } catch (err) {
+                    console.error(err);
+                    updateStatus(err.message || 'Error inesperado durante la exportación.', true);
+                }
+            },
+            error_callback: (err) => {
+                updateStatus('Error al autenticar: ' + (err.message || err), true);
+            }
+        });
+
+        // Lanzar popup de consentimiento
+        tokenClient.requestAccessToken({ prompt: 'consent' });
+
+    } catch (err) {
+        console.error(err);
+        updateStatus(err.message || 'Error al iniciar la exportación.', true);
+    }
+}
+
+function initGoogleCalendarFeatures() {
+    const exportBtn = document.getElementById('export-gcal-btn');
+    const closeBtn = document.getElementById('gcal-close-btn');
+    const cancelBtn = document.getElementById('gcal-cancel-btn');
+    const btnC1 = document.getElementById('btn-cuatrimestre-1');
+    const btnC2 = document.getElementById('btn-cuatrimestre-2');
+
+    if (exportBtn) exportBtn.addEventListener('click', openGCalModal);
+    if (closeBtn) closeBtn.addEventListener('click', closeGCalModal);
+    if (cancelBtn) cancelBtn.addEventListener('click', closeGCalModal);
+
+    if (gcalModal) {
+        gcalModal.addEventListener('click', (e) => {
+            if (e.target === gcalModal) {
+                closeGCalModal();
+            }
+        });
+    }
+
+    const clientId = '613985898141-g1md59mujg2nisv4dpnn0ld3lt1g60s3.apps.googleusercontent.com';
+
+    if (btnC1) {
+        btnC1.addEventListener('click', () => {
+            startGoogleCalendarExport(clientId, '2026-03-16', '2026-07-03');
+        });
+    }
+
+    if (btnC2) {
+        btnC2.addEventListener('click', () => {
+            startGoogleCalendarExport(clientId, '2026-08-18', '2026-12-04');
+        });
+    }
+}
+
 // Inicializar Aplicación al Cargar
 window.addEventListener('DOMContentLoaded', () => {
     initTheme();
     initTableSize();
     loadState();
     initSyncAndSearchFeatures();
+    initGoogleCalendarFeatures();
     renderGridStructure();
     renderSubjectsList();
     updateTimetable();
@@ -1413,3 +1643,4 @@ window.addEventListener('DOMContentLoaded', () => {
     // Auto-sincronizar horarios oficiales desde GitHub
     syncOfficialSchedules();
 });
+
