@@ -24,6 +24,13 @@
             <span class="badge">UTN</span>
         </div>
         <div class="header-actions">
+            <button id="open-config-btn" class="btn btn-secondary btn-icon-text" title="Configuración de la tabla">
+                <svg viewBox="0 0 24 24" width="16" height="16">
+                    <path fill="currentColor"
+                        d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
+                </svg>
+                <span>Configuración</span>
+            </button>
             <button id="clear-data-btn" class="btn btn-secondary btn-icon-text"
                 title="Borrar todos los datos y reiniciar">
                 <svg viewBox="0 0 24 24" width="16" height="16">
@@ -96,29 +103,19 @@
                     <div class="toolbar-left-group">
                         <span class="toolbar-label">Altura de tabla:</span>
                         <div class="zoom-slider-container">
-                            <input type="range" id="zoom-slider" class="zoom-slider" min="0.8" max="2.2" step="0.05"
-                                value="1.33">
+                            <input type="range" id="zoom-slider" class="zoom-slider" min="0.74" max="1.18" step="0.12"
+                                value="0.81">
                         </div>
                     </div>
                     <div class="toolbar-right-group" style="display: flex; gap: 0.5rem; align-items: center;">
-                        <a href="https://www.frbb.utn.edu.ar/frbb/info/pages/calendario2020.html" target="_blank"
-                            rel="noopener" class="btn btn-secondary btn-small btn-icon-text"
-                            style="text-decoration: none;" title="Ver calendario académico UTN FRBB">
-                            <svg viewBox="0 0 24 24" width="14" height="14">
+                        <button id="export-pdf-btn" class="btn btn-secondary btn-small btn-icon-text"
+                            title="Exportar horario a PDF (Horizontal)">
+                            <svg viewBox="0 0 24 24" width="16" height="16">
                                 <path fill="currentColor"
-                                    d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm0 16H5V8h14v11zm-5-5H7v-2h7v2z" />
+                                    d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9.5 8.5c0 .83-.67 1.5-1.5 1.5H7v2H5.5V8H8c.83 0 1.5.67 1.5 1.5v2zm5 2c0 .83-.67 1.5-1.5 1.5h-2.5V8h2.5c.83 0 1.5.67 1.5 1.5v4zm4-3.5h-2v1.5h1.5V13H16v2h-1.5V8h3.5v1.5zM7 9.5h1v2H7v-2zm5 0h1v4h-1v-4z" />
                             </svg>
-                            <span>Calendario académico</span>
-                        </a>
-                        <a href="https://www.frbb.utn.edu.ar/sysacad/" target="_blank" rel="noopener"
-                            class="btn btn-secondary btn-small btn-icon-text" style="text-decoration: none;"
-                            title="Ingresar a Sysacad UTN FRBB">
-                            <svg viewBox="0 0 24 24" width="14" height="14">
-                                <path fill="currentColor"
-                                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z" />
-                            </svg>
-                            <span>Sysacad</span>
-                        </a>
+                            <span>Exportar a PDF</span>
+                        </button>
                         <button id="export-gcal-btn" class="btn btn-google btn-small btn-icon-text"
                             title="Exportar a Google Calendar">
                             <svg viewBox="0 0 24 24" width="16" height="16">
@@ -160,10 +157,10 @@
                 <button id="modal-close-btn" class="btn-close" aria-label="Cerrar modal">&times;</button>
             </div>
 
-            <!-- Tabs para alternar entre Oficial y Manual -->
+            <!-- Tabs para alternar entre Materias y Extracurricular -->
             <div class="modal-tabs" id="subject-modal-tabs">
-                <button type="button" class="modal-tab-btn active" id="tab-official-btn">Buscar materia</button>
-                <button type="button" class="modal-tab-btn" id="tab-manual-btn">Creación manual</button>
+                <button type="button" class="modal-tab-btn active" id="tab-official-btn">Materias</button>
+                <button type="button" class="modal-tab-btn" id="tab-manual-btn">Extracurricular</button>
             </div>
 
             <!-- Contenido 1: Buscar Materia -->
@@ -205,38 +202,38 @@
                 </div>
             </div>
 
-            <!-- Contenido 2: Creación Manual (Formulario Original) -->
+            <!-- Contenido 2: Actividad Extracurricular -->
             <form id="subject-form" autocomplete="off" class="modal-section-content hidden">
                 <input type="hidden" id="edit-subject-id">
                 <div class="modal-body">
 
-                    <!-- Nombre de la Materia -->
+                    <!-- Nombre de la Actividad -->
                     <div class="form-group">
-                        <label for="subject-name">Nombre de la materia *</label>
-                        <input type="text" id="subject-name" required placeholder="...">
+                        <label for="subject-name">Nombre de la actividad *</label>
+                        <input type="text" id="subject-name" required placeholder="Gimnasio, deporte, trabajo...">
                     </div>
 
-                    <!-- Comisiones -->
+                    <!-- Horarios Extracurriculares -->
                     <div class="form-section">
                         <div class="section-header">
-                            <h4>Comisiones</h4>
-                            <button type="button" id="add-commission-btn"
+                            <h4>Horarios</h4>
+                            <button type="button" id="add-extracurricular-slot-btn"
                                 class="btn btn-secondary btn-small btn-icon-text">
                                 <svg viewBox="0 0 24 24" width="14" height="14">
                                     <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2Z" />
                                 </svg>
-                                <span>Añadir comisión</span>
+                                <span>Añadir horario</span>
                             </button>
                         </div>
 
-                        <div id="commissions-form-list" class="commissions-form-list">
-                            <!-- Se añadirán comisiones dinámicamente con JS -->
+                        <div id="extracurricular-slots-list" class="commissions-form-list">
+                            <!-- Se añadirán horarios dinámicamente con JS -->
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary modal-cancel-btn">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Guardar materia</button>
+                    <button type="submit" class="btn btn-primary">Guardar actividad</button>
                 </div>
             </form>
         </div>
@@ -306,11 +303,88 @@
         </div>
     </div>
 
+    <!-- Modal de Configuración de Tabla -->
+    <div id="config-modal" class="modal-overlay hidden">
+        <div class="modal-container" style="max-width: 450px;">
+            <div class="modal-header">
+                <h3>Configuración de Tabla</h3>
+                <button id="config-close-btn" class="btn-close" aria-label="Cerrar modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="config-group">
+                    <label class="config-checkbox-label">
+                        <input type="checkbox" id="cfg-show-weekend">
+                        <span>Mostrar sábado y domingo</span>
+                    </label>
+                    <p class="config-desc">Visualiza u oculta las columnas del fin de semana en la tabla de horarios.
+                    </p>
+                </div>
+
+                <div class="config-group" style="margin-top: 1.25rem;">
+                    <label class="config-checkbox-label">
+                        <input type="checkbox" id="cfg-crop-timerange">
+                        <span>Ajustar rango horario vertical</span>
+                    </label>
+                    <p class="config-desc">Limita las horas iniciales y finales de la grilla al rango de las materias
+                        activas.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="config-ok-btn" class="btn btn-primary">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Exportación a PDF (Selección de Orientación) -->
+    <div id="pdf-modal" class="modal-overlay hidden">
+        <div class="modal-container" style="max-width: 420px;">
+            <div class="modal-header">
+                <h3>Exportar a PDF</h3>
+                <button id="pdf-close-btn" class="btn-close" aria-label="Cerrar modal">&times;</button>
+            </div>
+            <div class="modal-body" style="text-align: center; padding: 1.25rem 1rem;">
+                <p style="margin-bottom: 1.25rem; font-size: 0.85rem; color: var(--text-muted, #94a3b8);">
+                    Seleccioná la orientación del documento PDF:
+                </p>
+                <div style="display: flex; gap: 1rem; justify-content: center;">
+                    <button id="pdf-landscape-btn" class="btn btn-primary" style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding: 1.25rem 0.75rem;">
+                        <svg viewBox="0 0 24 24" width="32" height="32">
+                            <path fill="currentColor" d="M19 5H5c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 12H5V7h14v10z"/>
+                        </svg>
+                        <span>Horizontal</span>
+                    </button>
+                    <button id="pdf-portrait-btn" class="btn btn-secondary" style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding: 1.25rem 0.75rem;">
+                        <svg viewBox="0 0 24 24" width="32" height="32">
+                            <path fill="currentColor" d="M17 3H7c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H7V5h10v14z"/>
+                        </svg>
+                        <span>Vertical</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer para barra de sistema retro -->
     <footer class="app-footer">
         <div class="footer-center">
         </div>
-        <div class="footer-right-text">
+        <div class="footer-right-links">
+            <a href="https://www.frbb.utn.edu.ar/utnfrbb/index.php/calendario-academico/" target="_blank" rel="noopener"
+                class="dock-link" title="Ver Calendario Académico UTN FRBB">
+                <svg viewBox="0 0 24 24" width="12" height="12">
+                    <path fill="currentColor"
+                        d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm0 16H5V8h14v11zm-5-5H7v-2h7v2z" />
+                </svg>
+                <span>Calendario académico</span>
+            </a>
+            <a href="https://www.frbb.utn.edu.ar/sysacad/" target="_blank" rel="noopener" class="dock-link"
+                title="Ingresar a Sysacad UTN FRBB">
+                <svg viewBox="0 0 24 24" width="12" height="12">
+                    <path fill="currentColor"
+                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z" />
+                </svg>
+                <span>Sysacad</span>
+            </a>
         </div>
     </footer>
 

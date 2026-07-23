@@ -272,6 +272,8 @@ input[type="time"]:focus {
     --subject-color-alpha: hsla(var(--subject-color-hue), 90%, 55%, 0.15);
     --subject-color-light: hsl(var(--subject-color-hue), 90%, 92%);
 
+    justify-content: flex-start !important;
+    gap: 2px !important;
     background-color: var(--subject-color-alpha) !important;
     border: 1px solid rgba(26, 44, 66, 0.4) !important;
     border-left: 4px solid var(--subject-color) !important;
@@ -285,6 +287,9 @@ input[type="time"]:focus {
 .event-subject {
     color: var(--subject-color-light) !important;
     font-weight: bold !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
 }
 
 .event-time {
@@ -507,7 +512,8 @@ body.theme-light .badge-plan:not(.plan-95):not(.plan-1995):not(.plan-23):not(.pl
     position: fixed !important;
     bottom: 3px !important;
     left: 10px !important;
-    z-index: 1000 !important;
+    z-index: 10000 !important;
+    pointer-events: auto !important;
     width: 24px !important;
     height: 24px !important;
     border: 1px solid #1a2c42 !important;
@@ -556,8 +562,9 @@ body.theme-light #theme-toggle:hover {
 #clear-data-btn {
     position: fixed !important;
     bottom: 3px !important;
-    left: 42px !important;
-    z-index: 1000 !important;
+    left: 40px !important;
+    z-index: 10000 !important;
+    pointer-events: auto !important;
     border: 1px solid rgba(26, 44, 66, 0.4) !important;
     background: transparent !important;
     color: #64748b !important;
@@ -599,8 +606,9 @@ body.theme-light #clear-data-btn:hover {
 #open-sync-btn {
     position: fixed !important;
     bottom: 3px !important;
-    left: 145px !important;
-    z-index: 1000 !important;
+    left: 108px !important;
+    z-index: 10000 !important;
+    pointer-events: auto !important;
     border: 1px solid #1a2c42 !important;
     background-color: #101926 !important;
     color: #e2e8f0 !important;
@@ -641,10 +649,57 @@ body.theme-light #open-sync-btn:hover {
     content: "ACTUALIZAR" !important;
 }
 
+#open-config-btn {
+    position: fixed !important;
+    bottom: 3px !important;
+    left: 202px !important;
+    z-index: 10000 !important;
+    pointer-events: auto !important;
+    border: 1px solid #1a2c42 !important;
+    background-color: #101926 !important;
+    color: #e2e8f0 !important;
+    font-size: 0.7rem !important;
+    font-weight: bold !important;
+    padding: 2px 8px !important;
+    height: 24px !important;
+    letter-spacing: 1px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: none !important;
+}
+
+body.theme-light #open-config-btn {
+    border: 1px solid #cbd5e1 !important;
+    background-color: #f8fafc !important;
+    color: #475569 !important;
+}
+
+#open-config-btn:hover {
+    border-color: #ff9f0a !important;
+    color: #ff9f0a !important;
+    background-color: #1a2638 !important;
+}
+
+body.theme-light #open-config-btn:hover {
+    border-color: #ea580c !important;
+    color: #ea580c !important;
+    background-color: #fff7ed !important;
+}
+
+#open-config-btn svg,
+#open-config-btn span {
+    display: none !important;
+}
+
+#open-config-btn::after {
+    content: "CONFIGURACIÓN" !important;
+}
+
 #sync-status-text {
     position: fixed !important;
     bottom: 7px !important;
-    right: 160px !important;
+    right: 330px !important;
     z-index: 1000 !important;
     font-size: 0.7rem !important;
     font-weight: bold !important;
@@ -955,4 +1010,164 @@ body.theme-light .commission-option:has(.commission-radio:checked) {
 
 .subject-card-commissions.expanded {
     visibility: visible !important;
+}
+
+/* Links en el Dock Inferior (Derecha) */
+.footer-right-links {
+    position: fixed !important;
+    right: 15px !important;
+    bottom: 3px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    z-index: 10000 !important;
+    pointer-events: auto !important;
+}
+
+.dock-link {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 5px !important;
+    color: #94a3b8 !important;
+    font-size: 0.7rem !important;
+    font-weight: bold !important;
+    text-decoration: none !important;
+    letter-spacing: 1px !important;
+    padding: 2px 8px !important;
+    height: 24px !important;
+    border: 1px solid #1a2c42 !important;
+    background-color: #101926 !important;
+    transition: color 0.15s, border-color 0.15s, background-color 0.15s !important;
+    box-shadow: none !important;
+}
+
+body.theme-light .dock-link {
+    color: #475569 !important;
+    border-color: #cbd5e1 !important;
+    background-color: #f8fafc !important;
+}
+
+.dock-link:hover {
+    color: #ff9f0a !important;
+    border-color: #ff9f0a !important;
+    background-color: #1a2638 !important;
+}
+
+body.theme-light .dock-link:hover {
+    color: #ea580c !important;
+    border-color: #ea580c !important;
+    background-color: #fff7ed !important;
+}
+
+.subject-card-commissions.expanded {
+    visibility: visible !important;
+}
+
+/* Estilos de Impresión / PDF: Aislamiento TOTAL de la Grilla de Horarios */
+@media print {
+    @page {
+        margin: 5mm;
+    }
+
+    body.print-landscape {
+        @page {
+            size: landscape;
+            margin: 5mm;
+        }
+    }
+
+    body.print-portrait {
+        @page {
+            size: portrait;
+            margin: 5mm;
+        }
+    }
+
+    html, body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        min-height: auto !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    body::before {
+        display: none !important;
+    }
+
+    .app-header,
+    .app-footer,
+    .panel-left,
+    .panel-header,
+    .timetable-card-header,
+    .timetable-actions,
+    .toolbar-left-group,
+    .toolbar-right-group,
+    .zoom-slider-container,
+    .footer-right-links,
+    .footer-right-text,
+    .collision-card,
+    .sync-status-card,
+    .modal-overlay,
+    #theme-toggle,
+    #clear-data-btn,
+    #open-sync-btn,
+    #open-config-btn,
+    #export-pdf-btn,
+    #export-gcal-btn,
+    #sync-status-text {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        height: 0 !important;
+        width: 0 !important;
+        position: absolute !important;
+        left: -9999px !important;
+    }
+
+    .app-layout {
+        display: block !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        height: auto !important;
+    }
+
+    .panel-right {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        background: transparent !important;
+    }
+
+    .timetable-card {
+        border: none !important;
+        box-shadow: none !important;
+        background: transparent !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .timetable-wrapper {
+        overflow: visible !important;
+        height: auto !important;
+        max-height: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border: none !important;
+    }
+
+    .timetable-grid {
+        width: 100% !important;
+        min-width: 100% !important;
+        border: 1px solid #cbd5e1 !important;
+        page-break-inside: avoid;
+    }
+
+    .timetable-event {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
 }

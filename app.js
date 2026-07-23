@@ -8,7 +8,11 @@ let state = {
     selections: {},  // Formato: { [subjectId]: commissionId }
     expandedSubjectId: null, // ID de la materia que está expandida (las demás están colapsadas)
     officialSubjects: [], // Base de datos de materias oficiales sincronizadas
-    officialUpdate: null  // Fecha/hora de última sincronización
+    officialUpdate: null,  // Fecha/hora de última sincronización
+    config: {
+        showWeekend: false,
+        cropTimeRange: false
+    }
 };
 
 // 2. Datos de Ejemplo (No utilizados)
@@ -59,6 +63,7 @@ function loadState() {
             state.subjects = parsed.subjects || [];
             state.selections = parsed.selections || {};
             state.expandedSubjectId = parsed.expandedSubjectId || null;
+            state.config = parsed.config || { showWeekend: false, cropTimeRange: false };
         } catch (e) {
             console.error('Error al cargar datos guardados, usando valores por defecto.', e);
             loadSampleData();
@@ -67,12 +72,14 @@ function loadState() {
         loadSampleData();
     }
     loadOfficialState(); // Cargar base de datos oficial
+    ensureUniqueSubjectColors();
 }
 
 function loadSampleData() {
     state.subjects = [];
     state.selections = {};
     state.expandedSubjectId = null;
+    state.config = { showWeekend: false, cropTimeRange: false };
     saveState();
 }
 
@@ -80,7 +87,8 @@ function saveState() {
     const stateToSave = {
         subjects: state.subjects,
         selections: state.selections,
-        expandedSubjectId: state.expandedSubjectId || null
+        expandedSubjectId: state.expandedSubjectId || null,
+        config: state.config || { showWeekend: false, cropTimeRange: false }
     };
     localStorage.setItem('horauni_state', JSON.stringify(stateToSave));
 }
@@ -211,83 +219,93 @@ function parseOfficialHTML(htmlText) {
     const doc = parser.parseFromString(htmlText, 'text/html');
 
     const trs = doc.querySelectorAll('tr');
-    const rows = [];
+    const parsedSubjects = {};
+    let currentSectionAula = '';
+
+    // Regex flexible para campos: Nombre, Plan, Comisión, Cuatrimestre, Docente, Aula (opcional), Horas
+    const entryRegex = /^([\s\S]+?)\(\s*(\d+)\s*\)\s*-\s*Com:\s*([^-]+)-\s*\(([^)]+)\)\s*-\s*\(([^)]+)\)(?:\s*(?:\*\*|\s)*\(?\s*((?:AULA|LAB)\s*[:\s]*[^\)\*]+)\)?\s*(?:\*\*|\s)*)?\s*\((\d{2}:\d{2})\s*[-–—\s]\s*(\d{2}:\d{2})\)$/i;
 
     trs.forEach(tr => {
+        const cleanTrText = tr.textContent.replace(/\s+/g, ' ').trim();
+
+        // Si la fila es un encabezado de sección que contiene AULA: XXX o AULA XXX (sin Com:)
+        if (!cleanTrText.includes('Com:')) {
+            const secMatch = cleanTrText.match(/AULA\s*:?\s*(\w+)/i);
+            if (secMatch) {
+                currentSectionAula = `AULA ${secMatch[1]}`;
+            }
+        }
+
         const tds = tr.querySelectorAll('td');
         if (tds.length >= 7) {
             const timeSlotText = tds[0].textContent.replace(/\s+/g, '').trim();
-            // Match time pattern e.g. "08:00-08:45"
-            if (/^\d{2}:\d{2}-\d{2}:\d{2}$/.test(timeSlotText)) {
-                const dayCells = [];
-                for (let i = 1; i < 7; i++) {
-                    dayCells.push(tds[i].textContent.trim());
+            if (/^\d{2}:\d{2}[-–—\s]?\d{2}:\d{2}$/.test(timeSlotText) || /^\d{2}:\d{2}$/.test(timeSlotText)) {
+                for (let dayIdx = 1; dayIdx < 7; dayIdx++) {
+                    const cellText = tds[dayIdx].textContent;
+                    if (!cellText || !cellText.includes('Com:')) continue;
+
+                    const text = cellText.replace(/\s+/g, ' ').trim();
+                    const match = text.match(entryRegex);
+
+                    if (match) {
+                        const subjectName = match[1].trim();
+                        const plan = match[2].trim();
+                        const commission = match[3].trim();
+                        const term = match[4].trim();
+                        const teacher = match[5].trim();
+                        let classroom = match[6] ? match[6].trim() : '';
+
+                        if (!classroom) {
+                            const inlineAulaMatch = text.match(/\(?\s*(AULA\s*[:\s]*\w+)\s*\)?/i);
+                            if (inlineAulaMatch) {
+                                classroom = inlineAulaMatch[1].trim();
+                            }
+                        }
+
+                        if (!classroom) {
+                            classroom = currentSectionAula;
+                        }
+
+                        const startTime = match[7].trim();
+                        const endTime = match[8].trim();
+
+                        const dayVal = dayIdx.toString(); // '1' = Lunes, '2' = Martes, etc.
+                        const subjectKey = `${subjectName}_${plan}`;
+
+                        if (!parsedSubjects[subjectKey]) {
+                            parsedSubjects[subjectKey] = {
+                                id: 's_official_' + subjectKey.toLowerCase().replace(/[^a-z0-9]/g, '_'),
+                                name: subjectName,
+                                plan: plan,
+                                isOfficial: true,
+                                commissions: {}
+                            };
+                        }
+
+                        if (!parsedSubjects[subjectKey].commissions[commission]) {
+                            parsedSubjects[subjectKey].commissions[commission] = {
+                                id: 'c_official_' + subjectKey.toLowerCase().replace(/[^a-z0-9]/g, '_') + '_' + commission.toLowerCase().replace(/[^a-z0-9]/g, '_'),
+                                name: `Comisión ${commission}`,
+                                slots: []
+                            };
+                        }
+
+                        const slots = parsedSubjects[subjectKey].commissions[commission].slots;
+                        const duplicate = slots.some(s => s.day === dayVal && s.startTime === startTime && s.endTime === endTime);
+                        if (!duplicate) {
+                            slots.push({
+                                day: dayVal,
+                                startTime: startTime,
+                                endTime: endTime,
+                                classroom: classroom,
+                                teacher: teacher,
+                                term: term
+                            });
+                        }
+                    }
                 }
-                rows.push({
-                    timeSlot: timeSlotText,
-                    cells: dayCells
-                });
             }
         }
-    });
-
-    const parsedSubjects = {};
-    // Regex para extraer todos los campos: Nombre, Plan, Comisión, Cuatrimestre, Docente, Aula (opcional), Horas
-    const entryRegex = /^([\s\S]+?)\(\s*(\d+)\s*\)\s*-\s*Com:\s*([^-]+)-\s*\(([^)]+)\)\s*-\s*\(([^)]+)\)(?:\s*(?:\*\*|\s)*\((AULA\s+[^)]+)\)(?:\*\*|\s)*)?\s*\((\d{2}:\d{2})-(\d{2}:\d{2})\)$/i;
-
-    rows.forEach(row => {
-        row.cells.forEach((cellText, dayIdx) => {
-            if (!cellText || cellText.trim() === '') return;
-
-            // Reemplazar saltos de línea y múltiples espacios por un único espacio
-            const text = cellText.replace(/\s+/g, ' ').trim();
-            const match = text.match(entryRegex);
-
-            if (match) {
-                const subjectName = match[1].trim();
-                const plan = match[2].trim();
-                const commission = match[3].trim();
-                const term = match[4].trim();
-                const teacher = match[5].trim();
-                const classroom = match[6] ? match[6].trim() : '';
-                const startTime = match[7].trim();
-                const endTime = match[8].trim();
-
-                const dayVal = (dayIdx + 1).toString(); // '1' = Lunes, '2' = Martes, etc.
-                const subjectKey = `${subjectName}_${plan}`;
-
-                if (!parsedSubjects[subjectKey]) {
-                    parsedSubjects[subjectKey] = {
-                        id: 's_official_' + subjectKey.toLowerCase().replace(/[^a-z0-9]/g, '_'),
-                        name: subjectName,
-                        plan: plan,
-                        isOfficial: true,
-                        commissions: {}
-                    };
-                }
-
-                if (!parsedSubjects[subjectKey].commissions[commission]) {
-                    parsedSubjects[subjectKey].commissions[commission] = {
-                        id: 'c_official_' + subjectKey.toLowerCase().replace(/[^a-z0-9]/g, '_') + '_' + commission.toLowerCase().replace(/[^a-z0-9]/g, '_'),
-                        name: `Comisión ${commission}`,
-                        slots: []
-                    };
-                }
-
-                const slots = parsedSubjects[subjectKey].commissions[commission].slots;
-                const duplicate = slots.some(s => s.day === dayVal && s.startTime === startTime && s.endTime === endTime);
-                if (!duplicate) {
-                    slots.push({
-                        day: dayVal,
-                        startTime: startTime,
-                        endTime: endTime,
-                        classroom: classroom,
-                        teacher: teacher,
-                        term: term
-                    });
-                }
-            }
-        });
     });
 
     // Convertir comisiones de objeto a array
@@ -315,10 +333,64 @@ function getDayName(dayVal) {
     return days[dayVal] || '';
 }
 
+const DISTINCT_HUES = [
+    210, // Azul Océano
+    145, // Verde Menta
+    270, // Púrpura / Violeta
+    25,  // Naranja Cálido
+    340, // Rosa Frambuesa
+    185, // Cyan Neón
+    45,  // Dorado / Ámbar
+    160, // Turquesa
+    290, // Magenta / Orquídea
+    230, // Índigo
+    15,  // Coral
+    195  // Azul Cielo
+];
+
+function ensureUniqueSubjectColors() {
+    if (!state.subjects || state.subjects.length === 0) return;
+    const usedHues = [];
+    let updated = false;
+
+    state.subjects.forEach((subject, idx) => {
+        let hue = subject.colorHue;
+        const isConflict = hue === undefined || hue === null || usedHues.some(h => Math.abs(h - hue) < 22 || Math.abs(h - hue) > 338);
+
+        if (isConflict) {
+            let selectedHue = null;
+            for (const candidate of DISTINCT_HUES) {
+                const conflict = usedHues.some(h => Math.abs(h - candidate) < 22 || Math.abs(h - candidate) > 338);
+                if (!conflict) {
+                    selectedHue = candidate;
+                    break;
+                }
+            }
+            if (selectedHue === null) {
+                selectedHue = Math.floor((idx * 137.5) % 360);
+            }
+            subject.colorHue = selectedHue;
+            updated = true;
+        }
+        usedHues.push(subject.colorHue);
+    });
+
+    if (updated) {
+        saveState();
+    }
+}
+
 function generateColorHue() {
-    // Usamos el ángulo áureo (~137.5 grados) para obtener colores bien distribuidos
-    const count = state.subjects.length;
-    return Math.floor((count * 137.5) % 360);
+    ensureUniqueSubjectColors();
+    const usedHues = (state.subjects || []).map(s => s.colorHue);
+    for (const candidate of DISTINCT_HUES) {
+        const conflict = usedHues.some(h => Math.abs(h - candidate) < 22 || Math.abs(h - candidate) > 338);
+        if (!conflict) {
+            return candidate;
+        }
+    }
+    const lastHue = usedHues.length > 0 ? usedHues[usedHues.length - 1] : 0;
+    return Math.floor((lastHue + 137.5) % 360);
 }
 
 function timeStrToMinutes(timeStr) {
@@ -383,6 +455,7 @@ function createSlotRowHTML(day = '1', startTime = '08:00', endTime = '10:00') {
         { val: '4', name: 'Jueves' },
         { val: '5', name: 'Viernes' },
         { val: '6', name: 'Sábado' },
+        { val: '7', name: 'Domingo' },
     ];
 
     const dayOptions = days.map(d => `<option value="${d.val}" ${day === d.val ? 'selected' : ''}>${d.name}</option>`).join('');
@@ -392,45 +465,12 @@ function createSlotRowHTML(day = '1', startTime = '08:00', endTime = '10:00') {
             <select class="slot-day" required>
                 ${dayOptions}
             </select>
-            <input type="text" class="slot-start" placeholder="Desde (HH:MM)" required value="${startTime}" maxlength="5" pattern="^(0[0-9]|1[0-9]|2[0-4]):[0-5][0-9]$" title="Formato HH:MM de 00:00 a 24:00">
-            <input type="text" class="slot-end" placeholder="Hasta (HH:MM)" required value="${endTime}" maxlength="5" pattern="^(0[0-9]|1[0-9]|2[0-4]):[0-5][0-9]$" title="Formato HH:MM de 00:00 a 24:00">
+            <input type="text" class="slot-start" placeholder="Desde (HH:MM)" required value="${startTime}" maxlength="5" pattern="^(0[0-9]|1[0-9]|2[0-4]):[0-5][0-9]$" title="Formato HH:MM">
+            <input type="text" class="slot-end" placeholder="Hasta (HH:MM)" required value="${endTime}" maxlength="5" pattern="^(0[0-9]|1[0-9]|2[0-4]):[0-5][0-9]$" title="Formato HH:MM">
             <button type="button" class="btn-card-action btn-card-delete btn-slot-delete" title="Eliminar Horario">
                 <svg viewBox="0 0 24 24" width="16" height="16">
                     <path fill="currentColor" d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z"/>
                 </svg>
-            </button>
-        </div>
-    `;
-}
-
-function createCommissionCardHTML(commissionId, name = '', slots = []) {
-    let slotsHTML = '';
-    if (slots.length === 0) {
-        slotsHTML = createSlotRowHTML();
-    } else {
-        slotsHTML = slots.map(slot => createSlotRowHTML(slot.day, slot.startTime, slot.endTime)).join('');
-    }
-
-    return `
-        <div class="form-commission-card" data-id="${commissionId}">
-            <div class="form-commission-header">
-                <div class="form-group" style="flex: 1; margin: 0;">
-                    <input type="text" class="form-commission-name" placeholder="Nombre de Comisión (ej. Comisión A, Noche...)" required value="${name}">
-                </div>
-                <button type="button" class="btn btn-danger btn-small btn-card-action btn-commission-delete" title="Eliminar Comisión">
-                    <svg viewBox="0 0 24 24" width="16" height="16">
-                        <path fill="currentColor" d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z"/>
-                    </svg>
-                </button>
-            </div>
-            <div class="commission-slots-list">
-                ${slotsHTML}
-            </div>
-            <button type="button" class="btn btn-secondary btn-small btn-icon-text btn-add-slot-row" style="margin-top: 0.5rem; align-self: flex-start;">
-                <svg viewBox="0 0 24 24" width="12" height="12">
-                    <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2Z"/>
-                </svg>
-                <span>Añadir horario</span>
             </button>
         </div>
     `;
@@ -443,51 +483,110 @@ function renderGridStructure() {
     gridContainer.innerHTML = '';
     gridContainer.removeAttribute('data-orientation');
 
+    const showWeekend = state.config && state.config.showWeekend;
+    const cropTimeRange = state.config && state.config.cropTimeRange;
+
+    // Configuración de Días activos
+    const activeDays = [
+        { id: 1, name: 'Lunes' },
+        { id: 2, name: 'Martes' },
+        { id: 3, name: 'Miércoles' },
+        { id: 4, name: 'Jueves' },
+        { id: 5, name: 'Viernes' }
+    ];
+    if (showWeekend) {
+        activeDays.push({ id: 6, name: 'Sábado' }, { id: 7, name: 'Domingo' });
+    }
+
+    // Configuración de Rango Horario
+    let startHour = 8;
+    let endHour = 24;
+
+    if (cropTimeRange) {
+        const activeSlots = [];
+        state.subjects.forEach(subject => {
+            const selectedId = state.selections[subject.id];
+            if (selectedId && selectedId !== 'none') {
+                const commission = subject.commissions.find(c => c.id === selectedId);
+                if (commission) {
+                    commission.slots.forEach(slot => {
+                        const sDay = Number(slot.day);
+                        if (showWeekend || sDay <= 5) {
+                            activeSlots.push(slot);
+                        }
+                    });
+                }
+            }
+        });
+
+        if (activeSlots.length > 0) {
+            let earliestMins = 1440;
+            let latestMins = 0;
+            activeSlots.forEach(slot => {
+                const sMins = timeStrToMinutes(slot.startTime);
+                const eMins = timeStrToMinutes(slot.endTime);
+                if (sMins < earliestMins) earliestMins = sMins;
+                if (eMins > latestMins) latestMins = eMins;
+            });
+
+            startHour = Math.floor(earliestMins / 60);
+            endHour = Math.ceil(latestMins / 60);
+            if (endHour <= startHour) endHour = startHour + 1;
+        } else {
+            startHour = 8;
+            endHour = 20;
+        }
+    }
+
+    gridContainer.setAttribute('data-start-hour', startHour);
+    gridContainer.setAttribute('data-end-hour', endHour);
+
+    const totalMinutes = (endHour - startHour) * 60;
+    gridContainer.style.gridTemplateRows = `48px repeat(${totalMinutes}, var(--grid-row-height-1min, 1.3333px))`;
+    gridContainer.style.gridTemplateColumns = `80px repeat(${activeDays.length}, minmax(110px, 1fr))`;
+
     // Cabecera superior izquierda (Hora)
     const timeHeader = document.createElement('div');
     timeHeader.className = 'grid-header grid-header-time';
     timeHeader.innerText = 'Hora';
     gridContainer.appendChild(timeHeader);
 
-    // Cabeceras de días (Lunes a Sábado, columnas 2 a 7)
-    const dayNames = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-    dayNames.forEach((dayName, idx) => {
+    // Cabeceras de días
+    activeDays.forEach((dayObj, idx) => {
         const header = document.createElement('div');
         header.className = 'grid-header';
         header.style.gridRow = '1';
         header.style.gridColumn = `${idx + 2}`;
-        header.innerText = dayName;
+        header.innerText = dayObj.name;
         gridContainer.appendChild(header);
     });
 
-    // Bloques horarios (08:00 a 00:00)
-    const startHour = 8;
-    const endHour = 24;
-    const totalSlots = (endHour - startHour) * 2;
-
-    for (let slot = 0; slot < totalSlots; slot++) {
-        const startRow = slot * 30 + 2;
-        const endRow = (slot + 1) * 30 + 2;
-
-        const hour = Math.floor(startHour + slot / 2);
-        const mins = slot % 2 === 0 ? '00' : '30';
+    // Bloques horarios (startHour a endHour)
+    for (let hour = startHour; hour < endHour; hour++) {
+        const startRow = (hour - startHour) * 60 + 2;
+        const endRow = startRow + 60;
 
         const timeLabel = document.createElement('div');
         timeLabel.className = 'time-label';
         timeLabel.style.gridRow = `${startRow} / ${endRow}`;
         timeLabel.style.gridColumn = '1';
-        timeLabel.innerText = `${String(hour).padStart(2, '0')}:${mins}`;
+        timeLabel.innerText = `${String(hour).padStart(2, '0')}:00`;
         gridContainer.appendChild(timeLabel);
 
-        // Celdas de fondo para cada día
-        for (let day = 1; day <= 6; day++) {
-            const cell = document.createElement('div');
-            const isHourStart = slot % 2 === 0;
-            cell.className = `grid-cell ${isHourStart ? 'hour-start' : 'half-hour-start'}`;
-            cell.style.gridRow = `${startRow} / ${endRow}`;
-            cell.style.gridColumn = `${day + 1}`;
-            gridContainer.appendChild(cell);
-        }
+        // Celdas de fondo para cada día activo (2 filas de media hora)
+        activeDays.forEach((dayObj, idx) => {
+            const cell1 = document.createElement('div');
+            cell1.className = 'grid-cell hour-start';
+            cell1.style.gridRow = `${startRow} / ${startRow + 30}`;
+            cell1.style.gridColumn = `${idx + 2}`;
+            gridContainer.appendChild(cell1);
+
+            const cell2 = document.createElement('div');
+            cell2.className = 'grid-cell half-hour-start';
+            cell2.style.gridRow = `${startRow + 30} / ${endRow}`;
+            cell2.style.gridColumn = `${idx + 2}`;
+            gridContainer.appendChild(cell2);
+        });
     }
 }
 
@@ -495,6 +594,7 @@ function renderGridStructure() {
 const subjectsContainer = document.getElementById('subjects-container');
 
 function renderSubjectsList() {
+    ensureUniqueSubjectColors();
     subjectsContainer.innerHTML = '';
 
     if (state.subjects.length === 0) {
@@ -541,6 +641,11 @@ function renderSubjectsList() {
             badge.className = `badge-official plan-${subject.plan}`;
             badge.innerText = `Plan ${subject.plan === '95' ? '1995' : subject.plan}`;
             title.appendChild(badge);
+        } else {
+            const badge = document.createElement('span');
+            badge.className = 'badge-official badge-extracurricular';
+            badge.innerText = 'Extracurricular';
+            title.appendChild(badge);
         }
 
         header.appendChild(title);
@@ -552,7 +657,7 @@ function renderSubjectsList() {
         if (!subject.isOfficial) {
             const editBtn = document.createElement('button');
             editBtn.className = 'btn-card-action';
-            editBtn.title = 'Editar materia';
+            editBtn.title = 'Editar materia / actividad';
             editBtn.innerHTML = `
                 <svg viewBox="0 0 24 24" width="16" height="16">
                     <path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
@@ -670,8 +775,40 @@ async function deleteSubject(subjectId) {
     }
 }
 
+function checkAndEnableWeekendForSlots(slots) {
+    if (!slots || !Array.isArray(slots)) return;
+    const hasWeekend = slots.some(s => Number(s.day) === 6 || Number(s.day) === 7);
+    if (hasWeekend) {
+        if (!state.config) state.config = {};
+        state.config.showWeekend = true;
+        saveState();
+    }
+}
+
+function hasActiveWeekendSlots() {
+    return state.subjects.some(subject => {
+        const selectedId = state.selections[subject.id];
+        if (selectedId && selectedId !== 'none') {
+            const commission = subject.commissions.find(c => c.id === selectedId);
+            if (commission && commission.slots) {
+                return commission.slots.some(slot => Number(slot.day) === 6 || Number(slot.day) === 7);
+            }
+        }
+        return false;
+    });
+}
+
 function selectCommission(subjectId, commissionId) {
     state.selections[subjectId] = commissionId;
+    if (commissionId !== 'none') {
+        const subject = state.subjects.find(s => s.id === subjectId);
+        if (subject) {
+            const comm = subject.commissions.find(c => c.id === commissionId);
+            if (comm) {
+                checkAndEnableWeekendForSlots(comm.slots);
+            }
+        }
+    }
     saveState();
     updateTimetable();
 }
@@ -681,6 +818,14 @@ const collisionPanel = document.getElementById('collision-panel');
 const collisionList = document.getElementById('collision-list');
 
 function updateTimetable() {
+    renderGridStructure();
+    const startHour = Number(gridContainer.getAttribute('data-start-hour')) || 8;
+    const startMins = startHour * 60;
+    const showWeekend = state.config && state.config.showWeekend;
+
+    const activeDays = [1, 2, 3, 4, 5];
+    if (showWeekend) activeDays.push(6, 7);
+
     // A. Eliminar bloques de eventos anteriores en la grilla
     const elementsToRemove = gridContainer.querySelectorAll('.timetable-event');
     elementsToRemove.forEach(el => el.remove());
@@ -693,22 +838,27 @@ function updateTimetable() {
             const commission = subject.commissions.find(c => c.id === selectedId);
             if (commission) {
                 commission.slots.forEach(slot => {
-                    const startSlot = timeStrToSlotIndex(slot.startTime);
-                    const endSlot = timeStrToSlotIndex(slot.endTime);
-                    activeSlots.push({
-                        subjectId: subject.id,
-                        subjectName: subject.name,
-                        colorHue: subject.colorHue,
-                        commissionId: commission.id,
-                        commissionName: commission.name,
-                        day: slot.day,
-                        startSlot: startSlot,
-                        endSlot: endSlot,
-                        startTime: slot.startTime,
-                        endTime: slot.endTime,
-                        classroom: slot.classroom || '',
-                        teacher: slot.teacher || ''
-                    });
+                    const dayNum = Number(slot.day);
+                    const dayColIndex = activeDays.indexOf(dayNum);
+                    if (dayColIndex !== -1) {
+                        const sMins = timeStrToMinutes(slot.startTime);
+                        const eMins = timeStrToMinutes(slot.endTime);
+                        activeSlots.push({
+                            subjectId: subject.id,
+                            subjectName: subject.name,
+                            colorHue: subject.colorHue,
+                            commissionId: commission.id,
+                            commissionName: commission.name,
+                            day: slot.day,
+                            dayColIndex: dayColIndex,
+                            startMins: sMins,
+                            endMins: eMins,
+                            startTime: slot.startTime,
+                            endTime: slot.endTime,
+                            classroom: slot.classroom || '',
+                            teacher: slot.teacher || ''
+                        });
+                    }
                 });
             }
         }
@@ -723,22 +873,15 @@ function updateTimetable() {
             const a = activeSlots[i];
             const b = activeSlots[j];
 
-            // Colisionan si es el mismo día y los rangos de slots se solapan
-            if (a.day === b.day && Math.max(a.startSlot, b.startSlot) < Math.min(a.endSlot, b.endSlot)) {
-                const overlapStart = Math.max(a.startSlot, b.startSlot);
-                const overlapEnd = Math.min(a.endSlot, b.endSlot);
-
+            if (a.day === b.day && Math.max(a.startMins, b.startMins) < Math.min(a.endMins, b.endMins)) {
                 collisions.push({
                     day: a.day,
                     slotA: a,
-                    slotB: b,
-                    overlapStart: overlapStart,
-                    overlapEnd: overlapEnd
+                    slotB: b
                 });
 
-                // Claves únicas para identificar qué bloques específicos pintar en rojo
-                conflictingSlotKeys.add(`${a.subjectId}_${a.commissionId}_${a.day}_${a.startSlot}_${a.endSlot}`);
-                conflictingSlotKeys.add(`${b.subjectId}_${b.commissionId}_${b.day}_${b.startSlot}_${b.endSlot}`);
+                conflictingSlotKeys.add(`${a.subjectId}_${a.commissionId}_${a.day}_${a.startMins}_${a.endMins}`);
+                conflictingSlotKeys.add(`${b.subjectId}_${b.commissionId}_${b.day}_${b.startMins}_${b.endMins}`);
             }
         }
     }
@@ -747,22 +890,22 @@ function updateTimetable() {
     const renderedConflictKeys = new Set();
     activeSlots.forEach(slot => {
         const eventEl = document.createElement('div');
-        const slotKey = `${slot.subjectId}_${slot.commissionId}_${slot.day}_${slot.startSlot}_${slot.endSlot}`;
+        const slotKey = `${slot.subjectId}_${slot.commissionId}_${slot.day}_${slot.startMins}_${slot.endMins}`;
         const isConflicting = conflictingSlotKeys.has(slotKey);
 
         eventEl.className = `timetable-event ${isConflicting ? 'in-conflict' : ''}`;
 
-        // Posicionamiento en el CSS Grid (superposición física al 100% de ancho)
-        eventEl.style.gridRow = `${slot.startSlot + 2} / ${slot.endSlot + 2}`;
-        eventEl.style.gridColumn = `${Number(slot.day) + 1}`; // Col 1 es Hora, por ende Lunes (1) es Col 2
+        const startRow = (slot.startMins - startMins) + 2;
+        const endRow = (slot.endMins - startMins) + 2;
 
+        eventEl.style.gridRow = `${startRow} / ${endRow}`;
+        eventEl.style.gridColumn = `${slot.dayColIndex + 2}`;
         eventEl.style.setProperty('--subject-color-hue', slot.colorHue);
 
-        // Contenido simplificado si hay colisión para evitar empastes tipográficos
         if (isConflicting) {
             const overlaps = activeSlots.filter(other =>
                 other.day === slot.day &&
-                Math.max(other.startSlot, slot.startSlot) < Math.min(other.endSlot, slot.endSlot)
+                Math.max(other.startMins, slot.startMins) < Math.min(other.endMins, slot.endMins)
             );
             const subjectNames = [...new Set(overlaps.map(o => o.subjectName))].sort();
             const conflictGroupKey = `${slot.day}_${subjectNames.join('|')}`;
@@ -782,12 +925,13 @@ function updateTimetable() {
                 <div class="event-subject-conflict" title="Superposición de horarios">${conflictHTML}</div>
             ` : '';
         } else {
+            const commTitle = slot.commissionName ? `<div class="event-commission" title="Comisión: ${slot.commissionName}">${slot.commissionName}</div>` : '';
             const classroomHTML = slot.classroom ? `<div class="event-classroom" title="${slot.classroom}">${slot.classroom}</div>` : '';
             const teacherHTML = slot.teacher ? `<div class="event-teacher" title="${slot.teacher}">${slot.teacher}</div>` : '';
 
             eventEl.innerHTML = `
                 <div class="event-subject" title="${slot.subjectName}">${slot.subjectName}</div>
-                <div class="event-commission" title="${slot.commissionName}">${slot.commissionName}</div>
+                ${commTitle}
                 ${classroomHTML}
                 ${teacherHTML}
                 <div class="event-time">${slot.startTime} - ${slot.endTime}</div>
@@ -822,23 +966,22 @@ function updateTimetable() {
     }
 }
 
-// 10. Gestión del Modal
+// 10. Gestión del Modal de Materias / Actividades Extracurriculares
 const subjectModal = document.getElementById('subject-modal');
 const subjectForm = document.getElementById('subject-form');
-const commissionsFormList = document.getElementById('commissions-form-list');
+const extracurricularSlotsList = document.getElementById('extracurricular-slots-list');
+const addExtracurricularSlotBtn = document.getElementById('add-extracurricular-slot-btn');
 const editSubjectIdInput = document.getElementById('edit-subject-id');
 
 function openAddSubjectModal() {
-    document.getElementById('modal-title').innerText = 'Añadir materia';
+    document.getElementById('modal-title').innerText = 'Añadir materia o actividad';
     editSubjectIdInput.value = '';
     subjectForm.reset();
 
-    commissionsFormList.innerHTML = '';
-
-    // Por defecto, añadir una comisión inicial
-    const commissionId = 'c_' + Date.now();
-    const cardHTML = createCommissionCardHTML(commissionId, 'Comisión 1');
-    commissionsFormList.appendChild(htmlToElement(cardHTML));
+    if (extracurricularSlotsList) {
+        extracurricularSlotsList.innerHTML = '';
+        extracurricularSlotsList.appendChild(htmlToElement(createSlotRowHTML()));
+    }
 
     // Limpiar buscador oficial
     const searchInput = document.getElementById('subject-search-input');
@@ -872,18 +1015,22 @@ function openEditSubjectModal(subjectId) {
     const subject = state.subjects.find(s => s.id === subjectId);
     if (!subject) return;
 
-    document.getElementById('modal-title').innerText = 'Editar materia';
+    document.getElementById('modal-title').innerText = subject.isOfficial ? 'Editar materia' : 'Editar actividad';
     editSubjectIdInput.value = subject.id;
     document.getElementById('subject-name').value = subject.name;
 
-    commissionsFormList.innerHTML = '';
+    if (extracurricularSlotsList) {
+        extracurricularSlotsList.innerHTML = '';
+        const slots = subject.commissions[0]?.slots || [];
+        if (slots.length === 0) {
+            extracurricularSlotsList.appendChild(htmlToElement(createSlotRowHTML()));
+        } else {
+            slots.forEach(slot => {
+                extracurricularSlotsList.appendChild(htmlToElement(createSlotRowHTML(slot.day, slot.startTime, slot.endTime)));
+            });
+        }
+    }
 
-    subject.commissions.forEach(comm => {
-        const cardHTML = createCommissionCardHTML(comm.id, comm.name, comm.slots);
-        commissionsFormList.appendChild(htmlToElement(cardHTML));
-    });
-
-    // Si editamos, ocultar las pestañas para no permitir cambio a búsqueda
     const tabsContainer = document.getElementById('subject-modal-tabs');
     if (tabsContainer) {
         tabsContainer.classList.add('hidden');
@@ -898,7 +1045,6 @@ function closeModal() {
     subjectModal.classList.add('hidden');
     document.body.classList.remove('modal-open');
 
-    // Limpiar buscador oficial
     const searchInput = document.getElementById('subject-search-input');
     const resultsList = document.getElementById('search-results-list');
     const officialDetail = document.getElementById('official-subject-detail');
@@ -912,122 +1058,93 @@ function closeModal() {
     }
 }
 
-// Escuchador del formulario del modal (Delegación de Eventos)
-commissionsFormList.addEventListener('click', async (e) => {
-    const deleteCommBtn = e.target.closest('.btn-commission-delete');
-    const deleteSlotBtn = e.target.closest('.btn-slot-delete');
-    const addSlotBtn = e.target.closest('.btn-add-slot-row');
-
-    if (deleteCommBtn) {
-        const card = deleteCommBtn.closest('.form-commission-card');
-        const confirmed = await showConfirm('¿Estás seguro de que deseas eliminar esta comisión y todos sus horarios?');
-        if (confirmed) {
-            card.remove();
+// Botón para añadir nuevo horario en formulario extracurricular
+if (addExtracurricularSlotBtn) {
+    addExtracurricularSlotBtn.addEventListener('click', () => {
+        if (extracurricularSlotsList) {
+            extracurricularSlotsList.appendChild(htmlToElement(createSlotRowHTML()));
         }
-    } else if (deleteSlotBtn) {
-        const row = deleteSlotBtn.closest('.form-slot-row');
-        const slotsList = row.parentElement;
-        if (slotsList.children.length > 1) {
-            const confirmed = await showConfirm('¿Estás seguro de que deseas eliminar este horario?');
-            if (confirmed) {
-                row.remove();
+    });
+}
+
+// Eliminar horario en formulario extracurricular
+if (extracurricularSlotsList) {
+    extracurricularSlotsList.addEventListener('click', async (e) => {
+        const deleteSlotBtn = e.target.closest('.btn-slot-delete');
+        if (deleteSlotBtn) {
+            const row = deleteSlotBtn.closest('.form-slot-row');
+            if (extracurricularSlotsList.children.length > 1) {
+                const confirmed = await showConfirm('¿Estás seguro de que deseas eliminar este horario?');
+                if (confirmed) {
+                    row.remove();
+                }
+            } else {
+                alert('Debes mantener al menos un horario.');
             }
-        } else {
-            alert('Cada comisión debe contar con al menos un horario.');
         }
-    } else if (addSlotBtn) {
-        const card = addSlotBtn.closest('.form-commission-card');
-        const slotsList = card.querySelector('.commission-slots-list');
-        const newSlotHTML = createSlotRowHTML();
-        slotsList.appendChild(htmlToElement(newSlotHTML));
-    }
-});
+    });
+}
 
-// Añadir comisión vacía al modal
-document.getElementById('add-commission-btn').addEventListener('click', () => {
-    const commissionId = 'c_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
-    const count = commissionsFormList.querySelectorAll('.form-commission-card').length;
-    const cardHTML = createCommissionCardHTML(commissionId, `Comisión ${count + 1}`);
-    commissionsFormList.appendChild(htmlToElement(cardHTML));
-
-    // Hacer scroll al fondo de la vista del modal
-    const modalBody = subjectModal.querySelector('.modal-body');
-    modalBody.scrollTop = modalBody.scrollHeight;
-});
-
-// Guardar materia en el Submit del modal
+// Guardar materia / extracurricular en Submit del modal
 subjectForm.addEventListener('submit', (e) => {
     e.preventDefault();
 
     const subjectId = editSubjectIdInput.value;
     const subjectName = document.getElementById('subject-name').value.trim();
 
-    const commissionCards = commissionsFormList.querySelectorAll('.form-commission-card');
-    if (commissionCards.length === 0) {
-        alert('Debes añadir al menos una comisión.');
+    const slotRows = extracurricularSlotsList.querySelectorAll('.form-slot-row');
+    if (slotRows.length === 0) {
+        alert('Debes añadir al menos un horario.');
         return;
     }
 
-    const commissions = [];
+    const slots = [];
     let isValid = true;
 
-    commissionCards.forEach(card => {
-        const commissionId = card.getAttribute('data-id');
-        const commissionName = card.querySelector('.form-commission-name').value.trim();
+    slotRows.forEach(row => {
+        const day = row.querySelector('.slot-day').value;
+        const startTime = row.querySelector('.slot-start').value;
+        const endTime = row.querySelector('.slot-end').value;
 
-        const slotRows = card.querySelectorAll('.form-slot-row');
-        const slots = [];
+        const startMins = timeStrToMinutes(startTime);
+        const endMins = timeStrToMinutes(endTime);
 
-        slotRows.forEach(row => {
-            const day = row.querySelector('.slot-day').value;
-            const startTime = row.querySelector('.slot-start').value;
-            const endTime = row.querySelector('.slot-end').value;
+        if (endMins <= startMins) {
+            alert(`Error en el horario: La hora de fin (${endTime}) debe ser estrictamente posterior a la de inicio (${startTime}).`);
+            isValid = false;
+        }
 
-            // Validación de rango
-            const startMins = timeStrToMinutes(startTime);
-            const endMins = timeStrToMinutes(endTime);
-
-            if (endMins <= startMins) {
-                alert(`Error en "${commissionName}": La hora de fin (${endTime}) debe ser estrictamente posterior a la de inicio (${startTime}).`);
-                isValid = false;
-            }
-
-            slots.push({ day, startTime, endTime });
-        });
-
-        commissions.push({ id: commissionId, name: commissionName, slots });
+        slots.push({ day, startTime, endTime });
     });
 
-    if (!isValid) return; // Detener guardado si hay error en horas
+    if (!isValid) return;
+
+    const commId = 'comm_' + (subjectId || Date.now());
+    const commissions = [{ id: commId, name: 'Única', slots }];
+
+    checkAndEnableWeekendForSlots(slots);
 
     if (subjectId) {
-        // Modo Edición
         const subIndex = state.subjects.findIndex(s => s.id === subjectId);
         if (subIndex > -1) {
             state.subjects[subIndex].name = subjectName;
             state.subjects[subIndex].commissions = commissions;
-
-            // Si la comisión previamente seleccionada ya no existe, resetearla
-            const currentSelection = state.selections[subjectId];
-            const selectionExists = commissions.some(c => c.id === currentSelection);
-            if (!selectionExists) {
-                state.selections[subjectId] = commissions[0].id;
-            }
+            state.selections[subjectId] = commId;
         }
     } else {
-        // Modo Creación
-        const newSubjectId = 's_' + Date.now();
+        const newSubjectId = 'sub_' + Date.now();
         const colorHue = generateColorHue();
 
         state.subjects.push({
             id: newSubjectId,
             name: subjectName,
+            isOfficial: false,
+            isExtracurricular: true,
             colorHue: colorHue,
             commissions: commissions
         });
 
-        // Auto-seleccionar la primera comisión por defecto
-        state.selections[newSubjectId] = commissions[0].id;
+        state.selections[newSubjectId] = commId;
     }
 
     saveState();
@@ -1035,6 +1152,59 @@ subjectForm.addEventListener('submit', (e) => {
     updateTimetable();
     closeModal();
 });
+
+// 10b. Gestión del Modal de Configuración
+const configModal = document.getElementById('config-modal');
+const openConfigBtn = document.getElementById('open-config-btn');
+const configCloseBtn = document.getElementById('config-close-btn');
+const configOkBtn = document.getElementById('config-ok-btn');
+const cfgShowWeekend = document.getElementById('cfg-show-weekend');
+const cfgCropTimeRange = document.getElementById('cfg-crop-timerange');
+
+function openConfigModal() {
+    if (!state.config) state.config = { showWeekend: false, cropTimeRange: false };
+    if (cfgShowWeekend) cfgShowWeekend.checked = !!state.config.showWeekend;
+    if (cfgCropTimeRange) cfgCropTimeRange.checked = !!state.config.cropTimeRange;
+    configModal.classList.remove('hidden');
+    document.body.classList.add('modal-open');
+}
+
+function closeConfigModal() {
+    configModal.classList.add('hidden');
+    document.body.classList.remove('modal-open');
+}
+
+async function applyConfigChanges() {
+    if (!state.config) state.config = {};
+
+    const wantHideWeekend = cfgShowWeekend && !cfgShowWeekend.checked;
+    if (wantHideWeekend && hasActiveWeekendSlots()) {
+        const confirmed = await showConfirm('Tenés materias o actividades asignadas el fin de semana (sábado/domingo). Si ocultás el fin de semana, no se visualizarán en la tabla. ¿Deseás ocultar el fin de semana de todos modos?');
+        if (!confirmed) {
+            cfgShowWeekend.checked = true;
+            state.config.showWeekend = true;
+            saveState();
+            updateTimetable();
+            return;
+        }
+    }
+
+    state.config.showWeekend = cfgShowWeekend ? cfgShowWeekend.checked : false;
+    state.config.cropTimeRange = cfgCropTimeRange ? cfgCropTimeRange.checked : false;
+    saveState();
+    updateTimetable();
+}
+
+if (openConfigBtn) openConfigBtn.addEventListener('click', openConfigModal);
+if (configCloseBtn) configCloseBtn.addEventListener('click', closeConfigModal);
+if (configOkBtn) {
+    configOkBtn.addEventListener('click', () => {
+        applyConfigChanges();
+        closeConfigModal();
+    });
+}
+if (cfgShowWeekend) cfgShowWeekend.addEventListener('change', applyConfigChanges);
+if (cfgCropTimeRange) cfgCropTimeRange.addEventListener('change', applyConfigChanges);
 
 // Formateador y validador en tiempo real de entradas de hora
 subjectForm.addEventListener('input', (e) => {
@@ -1085,55 +1255,80 @@ function formatTimeInput(input, e) {
 }
 
 // Eventos de Cierre
-document.getElementById('modal-close-btn').addEventListener('click', closeModal);
-subjectModal.addEventListener('click', (e) => {
-    if (e.target === subjectModal) {
-        closeModal();
-    }
-});
+const modalCloseBtn = document.getElementById('modal-close-btn');
+if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeModal);
+
+if (subjectModal) {
+    subjectModal.addEventListener('click', (e) => {
+        if (e.target === subjectModal) {
+            closeModal();
+        }
+    });
+}
 
 // 11. Acciones de Encabezado y Otros Botones
-document.getElementById('add-subject-btn').addEventListener('click', openAddSubjectModal);
+const addSubjectBtn = document.getElementById('add-subject-btn');
+if (addSubjectBtn) addSubjectBtn.addEventListener('click', openAddSubjectModal);
 
-document.getElementById('theme-toggle').addEventListener('click', () => {
-    if (document.body.classList.contains('theme-dark')) {
-        document.body.className = 'theme-light';
-        document.documentElement.className = 'theme-light';
-        localStorage.setItem('horauni_theme', 'light');
-    } else {
-        document.body.className = 'theme-dark';
-        document.documentElement.className = 'theme-dark';
-        localStorage.setItem('horauni_theme', 'dark');
-    }
-});
+const themeToggleBtn = document.getElementById('theme-toggle');
+if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+        if (document.body.classList.contains('theme-dark')) {
+            document.body.className = 'theme-light';
+            document.documentElement.className = 'theme-light';
+            localStorage.setItem('horauni_theme', 'light');
+        } else {
+            document.body.className = 'theme-dark';
+            document.documentElement.className = 'theme-dark';
+            localStorage.setItem('horauni_theme', 'dark');
+        }
+    });
+}
 
-document.getElementById('clear-data-btn').addEventListener('click', async () => {
-    const confirmed = await showConfirm('¿Estás seguro de que deseas borrar todos los datos y reiniciar? Esta acción no se puede deshacer.');
-    if (confirmed) {
-        state.subjects = [];
-        state.selections = {};
-        saveState();
-        renderSubjectsList();
-        updateTimetable();
-    }
-});
+const clearDataBtn = document.getElementById('clear-data-btn');
+if (clearDataBtn) {
+    clearDataBtn.addEventListener('click', async () => {
+        const confirmed = await showConfirm('¿Estás seguro de que deseas borrar todos los datos y reiniciar? Esta acción no se puede deshacer.');
+        if (confirmed) {
+            state.subjects = [];
+            state.selections = {};
+            saveState();
+            renderSubjectsList();
+            updateTimetable();
+        }
+    });
+}
+
+function updateGridCommissionVisibility(grid, val) {
+    // Umbral de 80% de altura entre min (0.54) y max (1.08) -> 0.97
+    const showComm = val >= 0.97;
+    grid.setAttribute('data-show-commission', showComm ? 'true' : 'false');
+}
 
 function initTableSize() {
-    const savedVal = localStorage.getItem('horauni_tablesize_val') || '1.3333';
+    let savedVal = localStorage.getItem('horauni_tablesize_val');
+    let val = parseFloat(savedVal);
+    if (isNaN(val) || val > 1.08 || val < 0.54) {
+        val = 0.81;
+    }
+
     const grid = document.getElementById('timetable-grid');
     const slider = document.getElementById('zoom-slider');
 
     if (slider) {
-        slider.value = savedVal;
+        slider.min = "0.74";
+        slider.max = "1.18";
+        slider.step = "0.02";
+        slider.value = val.toString();
     }
 
-    const val = parseFloat(savedVal);
     grid.style.setProperty('--grid-row-height-1min', `${val}px`);
 
     let size = 'normal';
-    if (val < 1.1) size = 'compact';
-    else if (val > 1.7) size = 'spacious';
+    if (val < 0.7) size = 'compact';
+    else if (val > 0.95) size = 'spacious';
     grid.setAttribute('data-size', size);
+    updateGridCommissionVisibility(grid, val);
 }
 
 // Evento de control de zoom con slider
@@ -1145,9 +1340,10 @@ if (zoomSlider) {
         grid.style.setProperty('--grid-row-height-1min', `${val}px`);
 
         let size = 'normal';
-        if (val < 1.1) size = 'compact';
-        else if (val > 1.7) size = 'spacious';
+        if (val < 0.7) size = 'compact';
+        else if (val > 0.95) size = 'spacious';
         grid.setAttribute('data-size', size);
+        updateGridCommissionVisibility(grid, val);
 
         localStorage.setItem('horauni_tablesize_val', val.toString());
     });
@@ -1311,6 +1507,7 @@ function initSyncAndSearchFeatures() {
 
             if (newSub.commissions.length > 0) {
                 state.selections[newSub.id] = newSub.commissions[0].id;
+                checkAndEnableWeekendForSlots(newSub.commissions[0].slots);
             } else {
                 state.selections[newSub.id] = 'none';
             }
@@ -1637,6 +1834,51 @@ function initGoogleCalendarFeatures() {
     }
 }
 
+function initPdfExportFeature() {
+    const exportPdfBtn = document.getElementById('export-pdf-btn');
+    const pdfModal = document.getElementById('pdf-modal');
+    const pdfCloseBtn = document.getElementById('pdf-close-btn');
+    const pdfLandscapeBtn = document.getElementById('pdf-landscape-btn');
+    const pdfPortraitBtn = document.getElementById('pdf-portrait-btn');
+
+    function openPdfModal() {
+        if (pdfModal) {
+            pdfModal.classList.remove('hidden');
+            document.body.classList.add('modal-open');
+        }
+    }
+
+    function closePdfModal() {
+        if (pdfModal) {
+            pdfModal.classList.add('hidden');
+            document.body.classList.remove('modal-open');
+        }
+    }
+
+    function triggerPrint(orientation) {
+        closePdfModal();
+        document.body.classList.remove('print-landscape', 'print-portrait');
+        document.body.classList.add(orientation === 'portrait' ? 'print-portrait' : 'print-landscape');
+
+        setTimeout(() => {
+            window.print();
+        }, 150);
+    }
+
+    if (exportPdfBtn) exportPdfBtn.addEventListener('click', openPdfModal);
+    if (pdfCloseBtn) pdfCloseBtn.addEventListener('click', closePdfModal);
+    if (pdfLandscapeBtn) pdfLandscapeBtn.addEventListener('click', () => triggerPrint('landscape'));
+    if (pdfPortraitBtn) pdfPortraitBtn.addEventListener('click', () => triggerPrint('portrait'));
+
+    if (pdfModal) {
+        pdfModal.addEventListener('click', (e) => {
+            if (e.target === pdfModal) {
+                closePdfModal();
+            }
+        });
+    }
+}
+
 // Inicializar Aplicación al Cargar
 window.addEventListener('DOMContentLoaded', () => {
     initTheme();
@@ -1644,6 +1886,7 @@ window.addEventListener('DOMContentLoaded', () => {
     loadState();
     initSyncAndSearchFeatures();
     initGoogleCalendarFeatures();
+    initPdfExportFeature();
     renderGridStructure();
     renderSubjectsList();
     updateTimetable();

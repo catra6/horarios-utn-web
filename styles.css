@@ -501,12 +501,11 @@ body.theme-dark .sun-icon {
 }
 
 .timetable-grid[data-size="compact"] .event-subject {
-    font-size: 0.75rem;
+    font-size: 0.72rem;
 }
 
 .timetable-grid[data-size="compact"] .event-commission {
-    display: none;
-    /* Ocultar comisión en vista compacta para evitar overflow */
+    font-size: 0.65rem;
 }
 
 .timetable-grid[data-size="compact"] .event-time {
@@ -687,7 +686,8 @@ body.theme-dark .btn-group .btn.active {
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: flex-start;
+    gap: 2px;
     box-shadow: var(--shadow-sm);
     z-index: 2;
     cursor: default;
@@ -710,26 +710,55 @@ body.theme-dark .timetable-event {
 }
 
 .event-subject {
+    order: 1;
     font-weight: 700;
+    font-size: 0.78rem;
+    line-height: 1.15;
+    margin: 0;
+    flex-shrink: 0;
     white-space: normal;
     word-break: break-word;
-    font-size: 0.8rem;
-    line-height: 1.15;
-    margin-bottom: 0.2rem;
+    overflow-wrap: break-word;
 }
 
 .event-commission {
-    font-weight: 550;
+    order: 2;
+    display: none;
+    font-weight: 600;
+    font-size: 0.68rem;
     opacity: 0.9;
+    flex-shrink: 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    margin: 0;
+}
+
+.timetable-grid[data-show-commission="true"] .event-commission {
+    display: block;
+}
+
+.event-classroom,
+.event-teacher {
+    order: 3;
+    font-size: 0.68rem;
+    opacity: 0.85;
+    flex-shrink: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
 }
 
 .event-time {
-    font-size: 0.7rem;
+    order: 4;
+    font-size: 0.65rem;
     opacity: 0.8;
+    flex-shrink: 1;
     margin-top: auto;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .timetable-event.in-conflict {
@@ -2034,4 +2063,147 @@ html.theme-dark, html:has(body.theme-dark) {
 }
 html.theme-light, html:has(body.theme-light) {
     background-color: var(--bg-primary, #f8fafc) !important;
+}
+
+/* Modal de Configuración */
+.config-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.config-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
+.config-checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--color-brand, #3b82f6);
+    cursor: pointer;
+}
+
+.config-desc {
+    font-size: 0.8rem;
+    color: var(--text-muted, #64748b);
+    margin-top: 0.25rem;
+    margin-left: 1.8rem;
+    line-height: 1.35;
+}
+
+/* Badge Extracurricular */
+.badge-extracurricular {
+    background-color: rgba(99, 102, 241, 0.15) !important;
+    color: #818cf8 !important;
+    border: 1px solid rgba(99, 102, 241, 0.35) !important;
+}
+
+/* Formato de Impresión (Exportar a PDF: Horizontal o Vertical) */
+@media print {
+    @page {
+        margin: 5mm;
+    }
+
+    body.print-landscape {
+        @page {
+            size: landscape;
+            margin: 5mm;
+        }
+    }
+
+    body.print-portrait {
+        @page {
+            size: portrait;
+            margin: 5mm;
+        }
+    }
+
+    html, body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        min-height: auto !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    .app-header,
+    .app-footer,
+    .panel-left,
+    .panel-header,
+    .timetable-card-header,
+    .timetable-actions,
+    .toolbar-left-group,
+    .toolbar-right-group,
+    .zoom-slider-container,
+    .footer-right-links,
+    .footer-right-text,
+    .collision-card,
+    .sync-status-card,
+    .modal-overlay,
+    #theme-toggle,
+    #clear-data-btn,
+    #open-sync-btn,
+    #open-config-btn,
+    #export-pdf-btn,
+    #export-gcal-btn,
+    #sync-status-text {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        height: 0 !important;
+        width: 0 !important;
+        position: absolute !important;
+        left: -9999px !important;
+    }
+
+    .app-layout {
+        display: block !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        height: auto !important;
+    }
+
+    .panel-right {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        background: transparent !important;
+    }
+
+    .timetable-card {
+        border: none !important;
+        box-shadow: none !important;
+        background: transparent !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .timetable-wrapper {
+        overflow: visible !important;
+        height: auto !important;
+        max-height: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border: none !important;
+    }
+
+    .timetable-grid {
+        width: 100% !important;
+        min-width: 100% !important;
+        border: 1px solid #cbd5e1 !important;
+        page-break-inside: avoid;
+    }
+
+    .timetable-event {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
 }
