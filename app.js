@@ -2099,6 +2099,95 @@ function initExportChoiceFeature() {
             openGCalModal();
         });
     }
+
+    const choiceIcsBtn = document.getElementById('choice-ics-btn');
+    if (choiceIcsBtn) {
+        choiceIcsBtn.addEventListener('click', () => {
+            closeChoiceModal();
+            downloadIcsCalendar();
+        });
+    }
+}
+
+function downloadIcsCalendar() {
+    const activeSlots = [];
+    state.subjects.forEach(subject => {
+        const selectedId = state.selections[subject.id];
+        if (selectedId && selectedId !== 'none') {
+            const commission = subject.commissions.find(c => c.id === selectedId);
+            if (commission) {
+                commission.slots.forEach(slot => {
+                    activeSlots.push({
+                        subjectName: subject.name,
+                        commissionName: commission.name,
+                        day: Number(slot.day),
+                        startTime: slot.startTime,
+                        endTime: slot.endTime,
+                        classroom: slot.classroom || '',
+                        teacher: slot.teacher || ''
+                    });
+                });
+            }
+        }
+    });
+
+    if (activeSlots.length === 0) {
+        showConfirm('No tenés materias cargadas para exportar.');
+        return;
+    }
+
+    const startDate = new Date('2026-03-16T00:00:00');
+    const endDateStr = '20260703T235959Z';
+    const jsDayToIcsDay = { 1: 'MO', 2: 'TU', 3: 'WE', 4: 'TH', 5: 'FR', 6: 'SA', 7: 'SU' };
+
+    let icsLines = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//UTN FRBB Horarios//ES',
+        'CALSCALE:GREGORIAN',
+        'METHOD:PUBLISH'
+    ];
+
+    activeSlots.forEach(slot => {
+        const eventDate = new Date(startDate);
+        const dayOffset = (slot.day - 1);
+        eventDate.setDate(eventDate.getDate() + dayOffset);
+
+        const year = eventDate.getFullYear();
+        const month = String(eventDate.getMonth() + 1).padStart(2, '0');
+        const day = String(eventDate.getDate()).padStart(2, '0');
+        const dateStr = `${year}${month}${day}`;
+
+        const startStr = `${dateStr}T${slot.startTime.replace(':', '')}00`;
+        const endStr = `${dateStr}T${slot.endTime.replace(':', '')}00`;
+        const byDay = jsDayToIcsDay[slot.day] || 'MO';
+
+        const title = `${slot.subjectName}${slot.commissionName ? ' (' + slot.commissionName + ')' : ''}`;
+        const desc = `Materia: ${slot.subjectName}\\nComisión: ${slot.commissionName || '-'}\\nProfesor: ${slot.teacher || '-'}`;
+        const loc = slot.classroom ? `Aula ${slot.classroom} - UTN FRBB` : 'UTN FRBB';
+
+        icsLines.push(
+            'BEGIN:VEVENT',
+            `SUMMARY:${title}`,
+            `DESCRIPTION:${desc}`,
+            `LOCATION:${loc}`,
+            `DTSTART:${startStr}`,
+            `DTEND:${endStr}`,
+            `RRULE:FREQ=WEEKLY;BYDAY=${byDay};UNTIL=${endDateStr}`,
+            'END:VEVENT'
+        );
+    });
+
+    icsLines.push('END:VCALENDAR');
+    const icsContent = icsLines.join('\r\n');
+
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'horarios_utn.ics';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 function initPdfExportFeature() {
