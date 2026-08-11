@@ -1,0 +1,1232 @@
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&display=swap');
+
+/* ==========================================================================
+   Aero Glass — Deep Ocean UI (inspirado en Nautilus Live / NatGeo)
+   Horarios UTN
+   ========================================================================== */
+
+/* ─── 1. Variables del Sistema ─────────────────────────────────────────────── */
+:root {
+    --font-primary: 'Exo 2', system-ui, -apple-system, sans-serif !important;
+
+    --bg-primary:    #020d1a !important;
+    --bg-secondary:  #0a253c !important;
+    --bg-tertiary:   #0f3248 !important;
+    --border-color:  rgba(0, 195, 255, 0.33) !important;
+    --border-color-muted: rgba(0, 150, 230, 0.25) !important;
+
+    --text-primary:   #d8f0ff !important;
+    --text-secondary: #33dbff !important;
+    --text-muted:     #6f9bb9 !important;
+
+    --color-brand:       #00b4ff !important;
+    --color-brand-hover: #00d4ff !important;
+    --color-brand-light: rgba(0, 180, 255, 0.18) !important;
+
+    --color-danger:        #ff4a6e !important;
+    --color-danger-hover:  #ff2a55 !important;
+    --color-danger-light:  rgba(255, 74, 110, 0.18) !important;
+    --color-danger-dark:   #ffb3c1 !important;
+    --color-danger-border: rgba(255, 74, 110, 0.45) !important;
+
+    --shadow-sm: 0 2px 8px rgba(0, 50, 100, 0.4);
+    --shadow-md: 0 4px 20px rgba(0, 50, 120, 0.45), 0 0 40px rgba(0, 100, 200, 0.08);
+    --shadow-lg: 0 8px 40px rgba(0, 40, 100, 0.6), 0 0 80px rgba(0, 120, 255, 0.1);
+
+    --radius-sm: 6px !important;
+    --radius-md: 10px !important;
+    --radius-lg: 16px !important;
+
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Aero glass accent */
+    --aero-glass-bg:    rgba(12, 45, 82, 0.75);
+    --aero-glass-hover: rgba(20, 65, 115, 0.85);
+}
+
+/* ─── Tipografía global ─────────────────────────────────────────────────────── */
+body,
+button,
+input,
+select,
+textarea {
+    font-family: var(--font-primary) !important;
+    letter-spacing: 0.02em !important;
+}
+
+/* ─── 2. Background: Modo Oscuro (Abismo) y Modo Claro (Cristal) ────────────── */
+body.theme-dark {
+    background:
+        radial-gradient(ellipse 120% 60% at 50% -10%, rgba(0, 80, 160, 0.25) 0%, transparent 70%),
+        radial-gradient(ellipse 80% 40% at 80% 100%, rgba(0, 40, 100, 0.3) 0%, transparent 60%),
+        radial-gradient(ellipse 100% 80% at 10% 80%, rgba(0, 20, 60, 0.4) 0%, transparent 60%),
+        linear-gradient(180deg, #020d1a 0%, #011020 40%, #020810 100%) !important;
+    color: #d8f0ff !important;
+
+    --bg-primary:    #020d1a !important;
+    --bg-secondary:  #0a253c !important;
+    --bg-tertiary:   #0f3248 !important;
+    --border-color:  rgba(0, 195, 255, 0.33) !important;
+    --border-color-muted: rgba(0, 150, 230, 0.25) !important;
+    --text-primary:   #d8f0ff !important;
+    --text-secondary: #33dbff !important;
+    --text-muted:     #6f9bb9 !important;
+    --color-brand:       #00b4ff !important;
+    --color-brand-hover: #00d4ff !important;
+    --color-brand-light: rgba(0, 180, 255, 0.18) !important;
+    --color-danger:        #ff4a6e !important;
+    --color-danger-hover:  #ff2a55 !important;
+    --color-danger-light:  rgba(255, 74, 110, 0.18) !important;
+    --color-danger-dark:   #ffb3c1 !important;
+    --color-danger-border: rgba(255, 74, 110, 0.45) !important;
+    --shadow-sm: 0 2px 8px rgba(0, 50, 100, 0.4) !important;
+    --shadow-md: 0 4px 20px rgba(0, 50, 120, 0.45) !important;
+    --shadow-lg: 0 8px 40px rgba(0, 40, 100, 0.6) !important;
+}
+
+body.theme-light {
+    background:
+        radial-gradient(ellipse 120% 60% at 50% -10%, rgba(186, 230, 253, 0.5) 0%, transparent 70%),
+        radial-gradient(ellipse 80% 40% at 80% 100%, rgba(224, 242, 254, 0.6) 0%, transparent 60%),
+        linear-gradient(180deg, #e0f2fe 0%, #f0f9ff 50%, #e2e8f0 100%) !important;
+    color: #0f172a !important;
+
+    --bg-primary:    #f0f9ff !important;
+    --bg-secondary:  rgba(255, 255, 255, 0.88) !important;
+    --bg-tertiary:   rgba(224, 242, 254, 0.7) !important;
+    --border-color:  rgba(2, 132, 199, 0.22) !important;
+    --border-color-muted: rgba(2, 132, 199, 0.12) !important;
+    --text-primary:   #0f172a !important;
+    --text-secondary: #0284c7 !important;
+    --text-muted:     #475569 !important;
+    --color-brand:       #0284c7 !important;
+    --color-brand-hover: #0369a1 !important;
+    --color-brand-light: rgba(2, 132, 199, 0.1) !important;
+    --color-danger:        #ef4444 !important;
+    --color-danger-hover:  #dc2626 !important;
+    --color-danger-light:  rgba(239, 68, 68, 0.1) !important;
+    --color-danger-dark:   #991b1b !important;
+    --color-danger-border: rgba(239, 68, 68, 0.3) !important;
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+    --shadow-md: 0 4px 20px rgba(2, 132, 199, 0.08) !important;
+    --shadow-lg: 0 8px 40px rgba(2, 132, 199, 0.12) !important;
+}
+
+body.theme-light::before {
+    display: none !important;
+}
+
+/* html rubber-band */
+html.theme-dark,
+html:has(body.theme-dark) {
+    background-color: #020d1a !important;
+}
+html.theme-light,
+html:has(body.theme-light) {
+    background-color: #f0f9ff !important;
+}
+
+/* ─── Aero Glass Modo Claro ─────────────────────────────────────────────────── */
+body.theme-light .app-header {
+    background: rgba(255, 255, 255, 0.92) !important;
+    border-bottom: 1px solid rgba(2, 132, 199, 0.25) !important;
+    box-shadow: 0 4px 20px rgba(2, 132, 199, 0.08) !important;
+    backdrop-filter: blur(28px) saturate(1.4) !important;
+    -webkit-backdrop-filter: blur(28px) saturate(1.4) !important;
+}
+
+body.theme-light .nav-logo-utn {
+    color: #0f172a !important;
+    text-shadow: none !important;
+}
+
+body.theme-light .nav-logo-frbb {
+    color: #0284c7 !important;
+    text-shadow: none !important;
+}
+
+body.theme-light .nav-link {
+    color: #475569 !important;
+}
+
+body.theme-light .nav-link:hover {
+    color: #0284c7 !important;
+    background-color: rgba(2, 132, 199, 0.08) !important;
+}
+
+body.theme-light .nav-link-active {
+    color: #0284c7 !important;
+    border-bottom-color: #0284c7 !important;
+    text-shadow: none !important;
+}
+
+body.theme-light .timetable-card,
+body.theme-light .panel-left-inner,
+body.theme-light .sidebar-card,
+body.theme-light .modal-container,
+body.theme-light .confirm-box,
+body.theme-light .status-container,
+body.theme-light .official-subject-detail,
+body.theme-light .subject-card {
+    background: rgba(255, 255, 255, 0.92) !important;
+    border: 1px solid rgba(2, 132, 199, 0.25) !important;
+    box-shadow: 0 8px 30px rgba(2, 132, 199, 0.10) !important;
+    color: #0f172a !important;
+}
+
+body.theme-light .modal-header {
+    background: linear-gradient(90deg, #e0f2fe 0%, #f0f9ff 100%) !important;
+    border-bottom: 1px solid rgba(2, 132, 199, 0.25) !important;
+    color: #0f172a !important;
+}
+
+body.theme-light .modal-header h3 {
+    color: #0369a1 !important;
+    text-shadow: none !important;
+}
+
+body.theme-light .modal-header .btn-close {
+    color: #64748b !important;
+}
+
+body.theme-light .timetable-grid {
+    background: #ffffff !important;
+    border: 1px solid rgba(2, 132, 199, 0.20) !important;
+}
+
+body.theme-light .grid-cell,
+body.theme-light .time-label {
+    border-color: rgba(226, 232, 240, 0.9) !important;
+    color: #64748b !important;
+}
+
+body.theme-light .grid-cell.hour-start {
+    background: #f8fafc !important;
+    border-top-color: #cbd5e1 !important;
+}
+
+body.theme-light .grid-cell.half-hour-start {
+    background: #ffffff !important;
+    border-top-color: #e2e8f0 !important;
+}
+
+body.theme-light .grid-header {
+    background: linear-gradient(180deg, #e0f2fe 0%, #f0f9ff 100%) !important;
+    border-bottom: 1px solid rgba(2, 132, 199, 0.25) !important;
+    color: #0284c7 !important;
+    text-shadow: none !important;
+}
+
+body.theme-light .btn,
+body.theme-light .modal-tab-btn,
+body.theme-light .btn-cuatrimestre,
+body.theme-light .btn-theme {
+    border: 1px solid rgba(2, 132, 199, 0.25) !important;
+    background: #ffffff !important;
+    color: #0369a1 !important;
+}
+
+body.theme-light .btn:hover,
+body.theme-light .modal-tab-btn.active,
+body.theme-light .btn-cuatrimestre:hover {
+    border-color: #0284c7 !important;
+    color: #0284c7 !important;
+    background: #e0f2fe !important;
+    text-shadow: none !important;
+}
+
+body.theme-light #open-sync-btn,
+body.theme-light #open-config-btn,
+body.theme-light #theme-toggle,
+body.theme-light #cfg-theme-toggle-btn {
+    border: 1px solid rgba(2, 132, 199, 0.3) !important;
+    background: #e0f2fe !important;
+    color: #0369a1 !important;
+}
+
+body.theme-light #open-sync-btn:hover,
+body.theme-light #open-config-btn:hover,
+body.theme-light #theme-toggle:hover,
+body.theme-light #cfg-theme-toggle-btn:hover {
+    border-color: #0284c7 !important;
+    background: #bae6fd !important;
+    color: #0284c7 !important;
+}
+
+body.theme-light .fab-config {
+    background: #ffffff !important;
+    border: 1px solid rgba(2, 132, 199, 0.35) !important;
+    color: #0284c7 !important;
+    box-shadow: 0 4px 20px rgba(2, 132, 199, 0.2) !important;
+}
+
+body.theme-light .fab-config:hover {
+    background: #0284c7 !important;
+    color: #ffffff !important;
+    border-color: #0284c7 !important;
+}
+
+body.theme-light .commission-option {
+    color: #0f172a !important;
+}
+
+body.theme-light .commission-option:hover {
+    background: rgba(224, 242, 254, 0.6) !important;
+    border-color: rgba(2, 132, 199, 0.25) !important;
+}
+
+body.theme-light .commission-option:has(.commission-radio:checked) {
+    background: #e0f2fe !important;
+    border: 1px solid #0284c7 !important;
+    box-shadow: 0 2px 8px rgba(2, 132, 199, 0.15) !important;
+}
+
+body.theme-light .commission-name {
+    color: #0f172a !important;
+}
+
+body.theme-light .commission-time-summary,
+body.theme-light .commission-teacher {
+    color: #0369a1 !important;
+    opacity: 1 !important;
+}
+
+/* ─── 3-bis. Nav Bar Aero Glass ────────────────────────────────────────────── */
+body.theme-dark .app-header {
+    background: linear-gradient(90deg,
+        rgba(10, 32, 60, 0.97) 0%,
+        rgba(12, 38, 72, 0.96) 50%,
+        rgba(10, 34, 64, 0.97) 100%) !important;
+    border-bottom: 1px solid rgba(0, 175, 235, 0.37) !important;
+    box-shadow:
+        0 1px 0 rgba(0, 200, 255, 0.1),
+        0 4px 24px rgba(0, 15, 60, 0.6),
+        inset 0 -1px 0 rgba(0, 70, 150, 0.12) !important;
+    backdrop-filter: blur(28px) saturate(1.4) !important;
+    -webkit-backdrop-filter: blur(28px) saturate(1.4) !important;
+}
+
+.nav-inner {
+    height: 50px !important;
+}
+
+/* Logo */
+.nav-logo-shield {
+    color: #00cfff !important;
+    filter: drop-shadow(0 0 8px rgba(0, 180, 255, 0.55)) !important;
+}
+
+.nav-logo-utn {
+    color: #d8f0ff !important;
+    text-shadow: 0 0 10px rgba(0, 180, 255, 0.35) !important;
+    letter-spacing: 4px !important;
+    font-size: 0.88rem !important;
+}
+
+.nav-logo-frbb {
+    color: #00cfff !important;
+    text-shadow: 0 0 8px rgba(0, 207, 255, 0.5) !important;
+    letter-spacing: 3px !important;
+}
+
+.nav-logo {
+    margin-right: 2.5rem !important;
+}
+
+/* Nav Links */
+.nav-link {
+    color: rgba(120, 185, 215, 0.75) !important;
+    font-size: 0.88rem !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.5px !important;
+    padding: 0 1.25rem !important;
+    border-bottom: 2px solid transparent !important;
+    transition: color 0.2s, border-color 0.2s, background-color 0.15s !important;
+}
+
+.nav-link:hover {
+    color: #a0dff8 !important;
+    background-color: rgba(0, 100, 175, 0.08) !important;
+    border-bottom-color: transparent !important;
+}
+
+.nav-link-active {
+    color: #00e4ff !important;
+    border-bottom-color: #00b4ff !important;
+    font-weight: 600 !important;
+    text-shadow: 0 0 10px rgba(0, 200, 255, 0.38) !important;
+}
+
+/* Search */
+.nav-search-wrapper {
+    background: rgba(8, 30, 58, 0.65) !important;
+    border: 1px solid rgba(0, 140, 210, 0.42) !important;
+    border-radius: 4px !important;
+    transition: border-color 0.2s, box-shadow 0.2s !important;
+}
+
+.nav-search-wrapper:focus-within {
+    border-color: rgba(0, 195, 255, 0.55) !important;
+    box-shadow: 0 0 0 2px rgba(0, 165, 240, 0.1), 0 0 14px rgba(0, 165, 240, 0.15) !important;
+}
+
+.nav-search {
+    color: #b0dcf8 !important;
+    font-size: 0.8rem !important;
+    width: 140px !important;
+}
+
+.nav-search::placeholder {
+    color: rgba(58, 106, 138, 0.6) !important;
+}
+
+.nav-search-btn {
+    background: rgba(0, 125, 200, 0.65) !important;
+    padding: 0.35rem 0.55rem !important;
+    border-left: 1px solid rgba(0, 140, 210, 0.42) !important;
+    color: #a0d4f0 !important;
+    transition: background 0.2s !important;
+}
+
+.nav-search-btn:hover {
+    background: rgba(0, 140, 210, 0.75) !important;
+    color: #d0f0ff !important;
+}
+
+/* Credit */
+.header-credit {
+    color: #2a5a7a !important;
+    font-size: 0.72rem !important;
+    letter-spacing: 0.3px !important;
+    white-space: nowrap !important;
+}
+
+.header-credit strong {
+    color: #00cfff !important;
+    text-shadow: 0 0 8px rgba(0, 207, 255, 0.4) !important;
+    text-decoration: none !important;
+}
+
+.header-credit:hover {
+    color: #4a8aaa !important;
+}
+
+/* ─── FAB Aero Glass ─────────────────────────────────────────────────────────── */
+.fab-config {
+    background: rgba(12, 38, 70, 0.88) !important;
+    border: 1px solid rgba(0, 150, 220, 0.45) !important;
+    color: #58a0c2 !important;
+    box-shadow:
+        0 4px 20px rgba(0, 15, 55, 0.55),
+        0 0 20px rgba(0, 80, 160, 0.1) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.25s, background 0.25s, border-color 0.25s, color 0.25s !important;
+}
+
+.fab-config:hover {
+    background: rgba(0, 80, 150, 0.55) !important;
+    border-color: rgba(0, 200, 255, 0.55) !important;
+    color: #00e4ff !important;
+    box-shadow:
+        0 0 0 1px rgba(0, 200, 255, 0.25),
+        0 8px 32px rgba(0, 30, 90, 0.6),
+        0 0 30px rgba(0, 160, 255, 0.2) !important;
+    transform: scale(1.1) rotate(35deg) !important;
+}
+
+/* ─── Config Modal Ampliado ──────────────────────────────────────────────────── */
+.config-section-title {
+    color: rgba(0, 160, 220, 0.55) !important;
+    border-bottom-color: rgba(0, 100, 160, 0.18) !important;
+    letter-spacing: 2px !important;
+}
+
+.config-row-label {
+    color: #9ecfe8 !important;
+}
+
+.config-row-desc {
+    color: #2a5a7a !important;
+}
+
+.config-action-btn {
+    min-width: 110px !important;
+    justify-content: center !important;
+}
+
+/* Anular footer en aero */
+
+
+/* ─── 4. Paneles — Vidrio Oceánico ───────────────────────────────────────────── */
+.timetable-card,
+.panel-left-inner,
+.sidebar-card,
+.modal-container,
+.confirm-box,
+.status-container,
+.official-subject-detail,
+.subject-card {
+    background: rgba(12, 45, 82, 0.75) !important;
+    border: 1px solid rgba(0, 160, 230, 0.33) !important;
+    border-radius: var(--radius-lg) !important;
+    box-shadow:
+        0 0 0 1px rgba(0, 80, 160, 0.15),
+        0 8px 40px rgba(0, 15, 50, 0.65),
+        inset 0 1px 0 rgba(0, 180, 255, 0.18),
+        inset 0 0 80px rgba(0, 50, 110, 0.08) !important;
+    backdrop-filter: blur(24px) saturate(1.5) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(1.5) !important;
+}
+
+.panel-left {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+body.theme-dark .modal-header {
+    background: linear-gradient(90deg,
+        rgba(10, 75, 140, 0.78) 0%,
+        rgba(8, 55, 105, 0.65) 100%) !important;
+    border-bottom: 1px solid rgba(0, 180, 245, 0.37) !important;
+    color: #d8f0ff !important;
+    border-radius: var(--radius-md) var(--radius-md) 0 0 !important;
+    margin: 0 !important;
+    padding: 1rem 1.5rem !important;
+    box-shadow: 0 1px 0 rgba(0, 220, 255, 0.12) !important;
+}
+
+body.theme-dark .modal-header h3 {
+    font-size: 0.82rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 2.5px !important;
+    text-transform: uppercase !important;
+    color: #9ee4ff !important;
+    text-shadow: 0 0 12px rgba(0, 180, 255, 0.45) !important;
+}
+
+body.theme-dark .modal-header .btn-close {
+    color: #3a6a8a !important;
+    background: transparent !important;
+    border: none !important;
+    transition: color 0.2s, text-shadow 0.2s !important;
+}
+
+body.theme-dark .modal-header .btn-close:hover {
+    color: #00cfff !important;
+    text-shadow: 0 0 10px rgba(0, 207, 255, 0.6) !important;
+}
+
+body.theme-dark .modal-overlay,
+body.theme-dark .confirm-overlay {
+    background: rgba(1, 6, 16, 0.78) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+}
+
+/* ─── 5. Botones ─────────────────────────────────────────────────────────────── */
+.btn,
+.modal-tab-btn,
+.btn-cuatrimestre,
+.btn-theme {
+    border: 1px solid rgba(0, 150, 220, 0.43) !important;
+    background: rgba(10, 42, 78, 0.72) !important;
+    color: #9cd4f0 !important;
+    font-weight: 500 !important;
+    border-radius: var(--radius-sm) !important;
+    box-shadow: none !important;
+    transition: all 0.2s ease !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+}
+
+.btn:hover,
+.modal-tab-btn.active,
+.btn-cuatrimestre:hover {
+    border-color: rgba(0, 200, 255, 0.55) !important;
+    color: #00e8ff !important;
+    background: rgba(0, 55, 95, 0.5) !important;
+    box-shadow:
+        0 0 14px rgba(0, 180, 255, 0.22),
+        inset 0 0 12px rgba(0, 150, 220, 0.06) !important;
+    text-shadow: 0 0 8px rgba(0, 220, 255, 0.45) !important;
+}
+
+.modal-tab-btn.active {
+    background: rgba(0, 70, 130, 0.42) !important;
+}
+
+#export-gcal-btn {
+    background: linear-gradient(135deg, #005f99, #0099cc) !important;
+    color: #e8f8ff !important;
+    border: 1px solid rgba(0, 180, 255, 0.4) !important;
+    text-shadow: none !important;
+    box-shadow: 0 0 16px rgba(0, 130, 210, 0.28) !important;
+}
+
+#export-gcal-btn:hover {
+    background: linear-gradient(135deg, #0080bb, #00bbdd) !important;
+    box-shadow: 0 0 28px rgba(0, 180, 255, 0.45) !important;
+}
+
+.btn.btn-primary,
+.btn-add {
+    background: linear-gradient(135deg, rgba(12, 105, 175, 0.75), rgba(12, 150, 215, 0.65)) !important;
+    border-color: rgba(0, 195, 255, 0.52) !important;
+    color: #c4eeff !important;
+}
+
+.btn.btn-primary:hover,
+.btn-add:hover {
+    background: linear-gradient(135deg, rgba(0, 100, 170, 0.8), rgba(0, 150, 210, 0.65)) !important;
+    border-color: rgba(0, 220, 255, 0.6) !important;
+    color: #d0f4ff !important;
+}
+
+/* ─── 6. Inputs ──────────────────────────────────────────────────────────────── */
+input[type="text"],
+input[type="date"],
+input[type="time"],
+select {
+    border: 1px solid rgba(0, 135, 205, 0.40) !important;
+    background: rgba(8, 30, 55, 0.68) !important;
+    color: #c4eeff !important;
+    border-radius: var(--radius-sm) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    transition: border-color 0.2s, box-shadow 0.2s !important;
+}
+
+input[type="text"]:focus,
+select:focus,
+input[type="time"]:focus,
+input[type="date"]:focus {
+    border-color: rgba(0, 195, 255, 0.55) !important;
+    box-shadow:
+        0 0 0 3px rgba(0, 165, 240, 0.1),
+        0 0 18px rgba(0, 165, 240, 0.18) !important;
+    outline: none !important;
+    color: #d8f0ff !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: rgba(58, 106, 138, 0.65) !important;
+}
+
+/* ─── 7. Grilla Horaria ──────────────────────────────────────────────────────── */
+.timetable-grid {
+    background: rgba(8, 26, 48, 0.58) !important;
+    border: 1px solid rgba(0, 120, 190, 0.33) !important;
+}
+
+.grid-cell,
+.time-label {
+    border-color: rgba(0, 80, 130, 0.37) !important;
+    color: #3b749a !important;
+}
+
+body.theme-dark .grid-cell.hour-start {
+    background: rgba(10, 32, 60, 0.48) !important;
+    border-top-color: rgba(0, 95, 155, 0.42) !important;
+}
+
+body.theme-dark .grid-cell.half-hour-start {
+    background: rgba(8, 26, 48, 0.42) !important;
+    border-top-color: rgba(0, 80, 130, 0.28) !important;
+}
+
+.grid-header {
+    background: linear-gradient(180deg,
+        rgba(10, 60, 110, 0.88) 0%,
+        rgba(8, 42, 85, 0.94) 100%) !important;
+    border-bottom: 1px solid rgba(0, 190, 250, 0.37) !important;
+    border-right: 1px solid rgba(0, 95, 150, 0.33) !important;
+    font-weight: 600 !important;
+    color: #00cfff !important;
+    text-shadow: 0 0 12px rgba(0, 200, 255, 0.45) !important;
+    letter-spacing: 1.5px !important;
+    box-shadow: inset 0 -2px 8px rgba(0, 90, 190, 0.08) !important;
+}
+
+/* ─── 8. Eventos en Grilla ───────────────────────────────────────────────────── */
+body.theme-dark .timetable-event {
+    --subject-color: hsl(var(--subject-color-hue), 85%, 68%);
+    --subject-color-alpha: hsla(var(--subject-color-hue), 85%, 55%, 0.24);
+    --subject-color-light: hsl(var(--subject-color-hue), 90%, 92%);
+    --subject-color-dark: hsl(var(--subject-color-hue), 78%, 42%);
+
+    background: var(--subject-color-alpha) !important;
+    border: 1px solid rgba(0, 120, 190, 0.33) !important;
+    border-left: 3px solid var(--subject-color) !important;
+    color: #d0eeff !important;
+    border-radius: var(--radius-sm) !important;
+    backdrop-filter: blur(10px) saturate(1.2) !important;
+    -webkit-backdrop-filter: blur(10px) saturate(1.2) !important;
+    box-shadow:
+        inset 0 0 14px rgba(0, 70, 150, 0.07),
+        0 2px 10px rgba(0, 15, 55, 0.3) !important;
+    transition: box-shadow 0.2s, border-color 0.2s !important;
+    justify-content: flex-start !important;
+    gap: 2px !important;
+}
+
+body.theme-dark .timetable-event:hover {
+    box-shadow:
+        0 0 0 1px var(--subject-color),
+        inset 0 0 20px rgba(0, 70, 160, 0.12),
+        0 4px 18px rgba(0, 25, 75, 0.45) !important;
+    border-left-width: 4px !important;
+}
+
+body.theme-dark .event-subject {
+    color: var(--subject-color-light) !important;
+    font-weight: 600 !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    text-shadow: 0 0 6px rgba(0, 160, 220, 0.18) !important;
+}
+
+body.theme-dark .event-time {
+    color: rgba(148, 200, 232, 0.65) !important;
+    font-weight: 400 !important;
+    font-size: 0.7rem !important;
+}
+
+body.theme-dark .event-classroom,
+body.theme-dark .event-teacher,
+body.theme-dark .event-commission {
+    color: rgba(88, 155, 195, 0.6) !important;
+    font-size: 0.68rem !important;
+}
+
+/* Modo Claro — Eventos con texto oscuro del tono de la tarjeta */
+body.theme-light .timetable-event {
+    --subject-color: hsl(var(--subject-color-hue), 70%, 45%);
+    --subject-color-alpha: hsla(var(--subject-color-hue), 70%, 45%, 0.22);
+    --subject-text-title: hsl(var(--subject-color-hue), 85%, 18%);
+    --subject-text-sub: hsl(var(--subject-color-hue), 75%, 26%);
+
+    background: var(--subject-color-alpha) !important;
+    border: 1px solid hsla(var(--subject-color-hue), 60%, 40%, 0.3) !important;
+    border-left: 4px solid var(--subject-color) !important;
+    color: var(--subject-text-title) !important;
+    border-radius: var(--radius-sm) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    transition: box-shadow 0.2s, border-color 0.2s !important;
+    justify-content: flex-start !important;
+    gap: 2px !important;
+}
+
+body.theme-light .timetable-event:hover {
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1) !important;
+    border-left-width: 5px !important;
+}
+
+body.theme-light .event-subject {
+    color: var(--subject-text-title) !important;
+    font-weight: 800 !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    text-shadow: none !important;
+}
+
+body.theme-light .event-time,
+body.theme-light .event-classroom,
+body.theme-light .event-teacher,
+body.theme-light .event-commission {
+    color: var(--subject-text-sub) !important;
+    font-weight: 600 !important;
+    font-size: 0.68rem !important;
+    text-shadow: none !important;
+    opacity: 1 !important;
+}
+
+:is(body.theme-light, body.theme-dark) .timetable-event.in-conflict {
+    background: linear-gradient(135deg, #800a1d 0%, #990f26 100%) !important;
+    border: 1px solid #ff4a6e !important;
+    border-left: 5px solid #ff1a40 !important;
+    color: #ffffff !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: 0 4px 18px rgba(255, 30, 70, 0.45), 0 0 8px rgba(255, 30, 70, 0.25) !important;
+}
+
+:is(body.theme-light, body.theme-dark) .timetable-event.in-conflict.in-conflict-overlay {
+    background: rgba(255, 35, 75, 0.15) !important;
+    border: 1.5px dashed #ff4a6e !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    pointer-events: none !important;
+}
+
+:is(body.theme-light, body.theme-dark) .timetable-event.in-conflict .event-subject-conflict {
+    font-size: 0.78rem !important;
+    color: #ffe0e6 !important;
+    line-height: 1.35 !important;
+    font-weight: 500 !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8) !important;
+}
+
+:is(body.theme-light, body.theme-dark) .timetable-event.in-conflict .event-subject-conflict strong {
+    color: #ffffff !important;
+    font-weight: 800 !important;
+    text-shadow: 0 0 6px rgba(255, 120, 150, 0.7) !important;
+}
+
+/* ─── 9. Panel de Búsqueda ────────────────────────────────────────────────────── */
+.search-results-list {
+    border: 1px solid rgba(0, 135, 205, 0.37) !important;
+    background: rgba(8, 30, 58, 0.95) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    box-shadow: 0 10px 40px rgba(0, 15, 55, 0.65) !important;
+    border-radius: var(--radius-sm) !important;
+}
+
+.search-result-item {
+    border-bottom: 1px solid rgba(0, 95, 155, 0.33) !important;
+    color: #aaccf0 !important;
+    transition: background 0.15s, color 0.15s !important;
+}
+
+.search-result-item:hover {
+    background: rgba(0, 55, 95, 0.38) !important;
+    color: #00e4ff !important;
+}
+
+.search-result-item:hover .search-result-name {
+    color: #00e4ff !important;
+    text-shadow: 0 0 8px rgba(0, 200, 255, 0.38) !important;
+}
+
+.search-result-plan,
+.badge-plan {
+    font-size: 0.7rem !important;
+    padding: 0.1rem 0.5rem !important;
+    border-radius: 4px !important;
+    font-weight: 600 !important;
+    text-shadow: none !important;
+    display: inline-block !important;
+}
+
+/* Planes */
+.plan-95, .plan-1995 {
+    background: rgba(234, 179, 8, 0.12) !important;
+    color: #fcd34d !important;
+    border: 1px solid rgba(234, 179, 8, 0.35) !important;
+}
+.plan-23, .plan-2023 {
+    background: rgba(34, 197, 94, 0.12) !important;
+    color: #4ade80 !important;
+    border: 1px solid rgba(34, 197, 94, 0.35) !important;
+}
+.plan-24, .plan-2024 {
+    background: rgba(0, 180, 255, 0.12) !important;
+    color: #38bdf8 !important;
+    border: 1px solid rgba(0, 180, 255, 0.35) !important;
+}
+.plan-21, .plan-2021 {
+    background: rgba(168, 85, 247, 0.12) !important;
+    color: #c084fc !important;
+    border: 1px solid rgba(168, 85, 247, 0.35) !important;
+}
+
+/* ─── 10. Comisiones (Sidebar) ────────────────────────────────────────────────── */
+.commission-radio {
+    display: none !important;
+}
+
+.commission-option {
+    opacity: 0.45 !important;
+    background: transparent !important;
+    border: 1px solid transparent !important;
+    border-radius: var(--radius-sm) !important;
+    transition: opacity 0.2s, background 0.2s, border-color 0.2s, box-shadow 0.2s !important;
+    padding: 6px 12px !important;
+    margin-bottom: 4px !important;
+    cursor: pointer !important;
+}
+
+.commission-option:hover {
+    opacity: 0.82 !important;
+    background: rgba(0, 110, 190, 0.07) !important;
+    border-color: rgba(0, 175, 240, 0.2) !important;
+}
+
+.commission-option:has(.commission-radio:checked) {
+    opacity: 1 !important;
+    background: rgba(0, 75, 135, 0.32) !important;
+    border: 1px solid rgba(0, 195, 255, 0.42) !important;
+    box-shadow:
+        0 0 14px rgba(0, 170, 240, 0.13),
+        inset 0 0 10px rgba(0, 110, 195, 0.07) !important;
+}
+
+.subject-card-commissions {
+    visibility: hidden !important;
+    transition: grid-template-rows var(--transition-normal), border-color var(--transition-normal), visibility var(--transition-normal) !important;
+}
+
+.subject-card-commissions.expanded {
+    visibility: visible !important;
+}
+
+/* ─── 11. Tarjeta de materia ─────────────────────────────────────────────────── */
+.subject-card {
+    background: rgba(10, 38, 70, 0.68) !important;
+    border: 1px solid rgba(0, 120, 190, 0.33) !important;
+    border-radius: var(--radius-md) !important;
+    transition: border-color 0.2s, box-shadow 0.2s !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+}
+
+.subject-card:hover {
+    border-color: rgba(0, 155, 215, 0.28) !important;
+    box-shadow: 0 0 22px rgba(0, 75, 155, 0.14) !important;
+}
+
+/* ─── 12. Zoom Slider ─────────────────────────────────────────────────────────── */
+.zoom-slider {
+    background: rgba(8, 48, 88, 0.68) !important;
+    border: 1px solid rgba(0, 135, 205, 0.37) !important;
+    border-radius: 4px !important;
+}
+
+.zoom-slider::-webkit-slider-thumb {
+    background: linear-gradient(135deg, #006eaa, #00b4e8) !important;
+    border-radius: 50% !important;
+    width: 14px !important;
+    height: 14px !important;
+    box-shadow: 0 0 10px rgba(0, 175, 240, 0.55) !important;
+    border: 2px solid rgba(0, 215, 255, 0.55) !important;
+}
+
+.zoom-slider::-moz-range-thumb {
+    background: linear-gradient(135deg, #006eaa, #00b4e8) !important;
+    border-radius: 50% !important;
+    width: 14px !important;
+    height: 14px !important;
+    box-shadow: 0 0 10px rgba(0, 175, 240, 0.55) !important;
+    border: 2px solid rgba(0, 215, 255, 0.55) !important;
+}
+
+/* ─── 13. Scrollbar ───────────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(1, 7, 17, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 90, 155, 0.38);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 175, 240, 0.58);
+    box-shadow: 0 0 6px rgba(0, 175, 240, 0.38);
+}
+
+/* ─── 14. Avisos e Info ───────────────────────────────────────────────────────── */
+.search-notice,
+.info-text {
+    border-left: 3px solid rgba(0, 190, 250, 0.70) !important;
+    background: rgba(8, 58, 105, 0.48) !important;
+    color: #aaccf0 !important;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0 !important;
+}
+
+/* ─── 15. Comisiones en modal de detalle ────────────────────────────────────── */
+.official-subject-detail {
+    background: rgba(8, 32, 60, 0.75) !important;
+}
+
+.commission-row {
+    background: rgba(8, 40, 72, 0.58) !important;
+    border: 1px solid rgba(0, 120, 190, 0.33) !important;
+    border-radius: var(--radius-sm) !important;
+    margin-bottom: 0.5rem !important;
+    transition: border-color 0.2s, box-shadow 0.2s !important;
+}
+
+.commission-row:hover {
+    border-color: rgba(0, 195, 255, 0.38) !important;
+    box-shadow: 0 0 12px rgba(0, 150, 240, 0.1) !important;
+}
+
+/* ─── 16-18. Botones dentro del Modal de Config ─────────────────────────────── */
+#theme-toggle {
+    position: static !important;
+    bottom: auto !important;
+    left: auto !important;
+    width: auto !important;
+    height: auto !important;
+    border: 1px solid rgba(0, 150, 220, 0.43) !important;
+    background: rgba(10, 42, 78, 0.72) !important;
+    color: #9cd4f0 !important;
+    border-radius: var(--radius-sm) !important;
+    padding: 0.4rem 0.8rem !important;
+    font-size: 0.8rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.4rem !important;
+    transition: all 0.2s !important;
+    transform: none !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+}
+
+#theme-toggle:hover {
+    border-color: rgba(0, 200, 255, 0.55) !important;
+    color: #00e8ff !important;
+    background: rgba(0, 55, 95, 0.5) !important;
+    transform: none !important;
+    text-shadow: 0 0 8px rgba(0, 220, 255, 0.45) !important;
+    box-shadow: 0 0 14px rgba(0, 180, 255, 0.22) !important;
+}
+
+#theme-toggle svg { width: 16px !important; height: 16px !important; }
+
+#clear-data-btn {
+    position: static !important;
+    bottom: auto !important;
+    left: auto !important;
+    height: auto !important;
+    padding: 0.4rem 0.8rem !important;
+    font-size: 0.8rem !important;
+    border: 1px solid rgba(255, 95, 130, 0.43) !important;
+    background: rgba(255, 35, 75, 0.16) !important;
+    color: #ffadbf !important;
+    transition: all 0.2s !important;
+    backdrop-filter: blur(8px) !important;
+}
+
+#clear-data-btn::after { content: none !important; }
+#clear-data-btn svg { display: flex !important; }
+#clear-data-btn span { display: inline !important; }
+
+#clear-data-btn:hover {
+    border-color: rgba(255, 55, 95, 0.55) !important;
+    background: rgba(255, 35, 75, 0.14) !important;
+    color: #ffb3c8 !important;
+    box-shadow: 0 0 12px rgba(255, 55, 95, 0.2) !important;
+}
+
+#open-sync-btn {
+    position: static !important;
+    bottom: auto !important;
+    left: auto !important;
+    height: auto !important;
+    padding: 0.4rem 0.8rem !important;
+    font-size: 0.8rem !important;
+    border: 1px solid rgba(0, 150, 220, 0.43) !important;
+    background: rgba(10, 42, 78, 0.72) !important;
+    color: #9cd4f0 !important;
+    transition: all 0.2s !important;
+    backdrop-filter: blur(8px) !important;
+}
+
+#open-sync-btn::after { content: none !important; }
+#open-sync-btn svg { display: flex !important; }
+#open-sync-btn span { display: inline !important; }
+
+#open-sync-btn:hover {
+    border-color: rgba(0, 200, 255, 0.55) !important;
+    color: #00e8ff !important;
+    background: rgba(0, 55, 95, 0.5) !important;
+    box-shadow: 0 0 14px rgba(0, 180, 255, 0.22) !important;
+}
+
+.sync-status-card {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0.75rem 1.5rem !important;
+    margin: 0 !important;
+    height: auto !important;
+    border: none !important;
+    border-bottom: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    width: 100% !important;
+}
+
+.sync-status-info {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    font-size: 0.8rem !important;
+}
+
+#sync-status-text {
+    position: static !important;
+    font-size: 0.78rem !important;
+    font-weight: 500 !important;
+    color: var(--text-muted) !important;
+}
+
+.sync-status-card .icon-sync {
+    display: block !important;
+    color: var(--color-brand) !important;
+}
+
+/* Desktop 15% Padding */
+@media (min-width: 1025px) {
+    .nav-inner {
+        padding-left: 15% !important;
+        padding-right: 15% !important;
+    }
+    .app-layout {
+        padding-left: 15% !important;
+        padding-right: 15% !important;
+    }
+}
+
+/* ─── 19. Mobile ──────────────────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+    .nav-link { padding: 0 0.7rem !important; font-size: 0.8rem !important; }
+    .nav-logo { margin-right: 1rem !important; }
+    .nav-logo-utn { font-size: 0.8rem !important; }
+    .nav-logo-frbb { font-size: 0.62rem !important; }
+    .nav-search { width: 90px !important; }
+    .header-credit { display: none !important; }
+
+
+    .grid-header .day-full { display: none !important; }
+    .grid-header .day-short {
+        display: inline !important;
+        font-weight: 700 !important;
+    }
+
+    .timetable-wrapper { overflow-x: hidden !important; }
+
+    .timetable-grid {
+        width: 100% !important;
+        min-width: 100% !important;
+        grid-template-columns: 44px repeat(auto-fit, minmax(0, 1fr)) !important;
+    }
+
+    .time-label {
+        font-size: 0.65rem !important;
+        padding-right: 2px !important;
+    }
+
+    .timetable-event {
+        background-color: hsl(var(--subject-color-hue), 78%, 28%) !important;
+        color: #d0eeff !important;
+        border-radius: 3px !important;
+        padding: 1px 2px !important;
+        margin: 0.5px !important;
+        min-height: 10px !important;
+        border: none !important;
+        border-left: 2.5px solid hsl(var(--subject-color-hue), 88%, 55%) !important;
+        box-shadow: 0 1px 3px rgba(0, 15, 55, 0.5) !important;
+        backdrop-filter: none !important;
+    }
+
+    .subject-full-name { display: none !important; }
+    .subject-short-name { display: inline !important; }
+
+    .event-subject {
+        color: #d0eeff !important;
+        font-size: 0.55rem !important;
+        font-weight: 700 !important;
+        line-height: 1.0 !important;
+    }
+
+    .event-time, .event-classroom, .event-teacher, .event-commission {
+        display: none !important;
+    }
+}
+
+
+
+/* ─── 20. Print ────────────────────────────────────────────────────────────── */
+@media print {
+    @page { margin: 5mm; }
+
+    html, body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        min-height: auto !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    body::before { display: none !important; }
+
+    .app-header, .app-footer, .panel-left, .panel-header,
+    .timetable-card-header, .timetable-actions, .toolbar-left-group,
+    .toolbar-right-group, .zoom-slider-container, .footer-right-links,
+    .footer-right-text, .collision-card, .sync-status-card,
+    .modal-overlay, #theme-toggle, #clear-data-btn, #open-sync-btn,
+    #open-config-btn, #open-export-modal-btn, #export-pdf-btn,
+    #export-gcal-btn, #sync-status-text {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        height: 0 !important;
+        width: 0 !important;
+        position: absolute !important;
+        left: -9999px !important;
+    }
+
+    .app-layout {
+        display: block !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        height: auto !important;
+    }
+
+    .panel-right {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        background: transparent !important;
+    }
+
+    .timetable-card {
+        border: none !important;
+        box-shadow: none !important;
+        background: transparent !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .timetable-wrapper {
+        overflow: visible !important;
+        height: auto !important;
+        max-height: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border: none !important;
+    }
+
+    .timetable-grid {
+        width: 100% !important;
+        min-width: 100% !important;
+        border: 1px solid #cbd5e1 !important;
+        page-break-inside: avoid;
+    }
+
+    .timetable-event {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+}
+

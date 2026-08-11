@@ -6,95 +6,92 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Horarios UTN</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- Para activar el estilo retro terminal (ámbar), descomentá la línea de abajo (¡ambas deben estar activas!) -->
-    <link rel="stylesheet" href="retro.css">
+    <!-- Temas extra: comentá/descomentá el que quieras usar (solo uno a la vez) -->
+    <!-- <link rel="stylesheet" href="retro.css"> --> <!-- Sci-Fi HUD ámbar -->
+    <link rel="stylesheet" href="aero.css"> <!-- Aero Glass deep-ocean -->
     <link rel="icon" type="image/svg+xml"
-        href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='30 180 70 105'><path fill='%233b82f6' d='M30.831,224.95h32.634c-18.469-4.542-32.169-21.21-32.169-41.081c0-0.774,0.022-1.543,0.063-2.306h17.425c-0.07,0.76-0.107,1.528-0.107,2.306c0,10.814,6.887,20.018,16.513,23.469v-25.714h16.863v25.701c9.606-3.462,16.475-12.656,16.475-23.455c0-0.778-0.037-1.546-0.107-2.306h17.425c0.041,0.763,0.063,1.532,0.063,2.306c0,19.871-13.7,36.538-32.169,41.081h31.535c0,5.924,0,11.848,0,17.771H83.739c18.469,4.542,32.169,21.21,32.169,41.081c0,0.774-0.022,1.543-0.063,2.306H98.42c0.07-0.76,0.107-1.528,0.107-2.306c0-10.799-6.868-19.993-16.475-23.455v25.701H65.19v-25.714c-9.627,3.451-16.513,12.655-16.513,23.469c0,0.777,0.037,1.546,0.107,2.306H31.358c-0.041-0.763-0.063-1.532-0.063-2.306c0-19.871,13.7-36.538,32.169-41.081H30.831C30.831,236.798,30.831,230.874,30.831,224.95z'/></svg>">
+        href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='30 180 70 105'><path fill='%233b82f6' d='M30.831,224.95h32.634c-18.469-4.542-32.169-21.21-32.169-41.081c0-0.774,0.022-1.543,0.063-2.306h17.425c-0.07,0.76-0.107,1.528-0.107,2.306c0,10.814,6.887,20.018,16.513,23.469v-25.714h16.863v25.701c9.606-3.462,16.475-12.656,16.475-23.455c0-0.778-0.037-1.546-0.107-2.306h17.425c0.041,0.763,0.063,1.532,0.063,2.306c0,19.871-13.7,36.538-32.169,41.081h31.535v17.771h-31.535c18.469,4.543,32.169,21.21,32.169,41.081c0,0.774-0.022,1.543-0.063,2.306h-17.425c0.07,-0.76,0.107,-1.528,0.107,-2.306c0,-10.799-6.868,-19.993-16.475,-23.455v25.701h-16.863v-25.714c-9.627,3.451-16.513,12.655-16.513,23.469c0,0.777,0.037,1.546,0.107,2.306h-17.425c-0.041,-0.763-0.063,-1.532-0.063,-2.306c0,-19.871,13.7,-36.538,32.169,-41.081h-32.634v-17.771z'/></svg>">
     <!-- Google Identity Services (OAuth 2.0) -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 
-<body class="theme-light">
+<body class="theme-dark">
+
+    <!-- NAV BAR — Estilo UTN FRBB -->
     <header class="app-header">
-        <div class="header-logo">
-            <svg class="icon-logo" viewBox="30 180 70 105" width="24" height="24">
-                <path fill="currentColor"
-                    d="M30.831,224.95h32.634c-18.469-4.542-32.169-21.21-32.169-41.081c0-0.774,0.022-1.543,0.063-2.306h17.425c-0.07,0.76-0.107,1.528-0.107,2.306c0,10.814,6.887,20.018,16.513,23.469v-25.714h16.863v25.701c9.606-3.462,16.475-12.656,16.475-23.455c0-0.778-0.037-1.546-0.107-2.306h17.425c0.041,0.763,0.063,1.532,0.063,2.306c0,19.871-13.7,36.538-32.169,41.081h31.535c0,5.924,0,11.848,0,17.771H83.739c18.469,4.542,32.169,21.21,32.169,41.081c0,0.774-0.022,1.543-0.063,2.306H98.42c0.07-0.76,0.107-1.528,0.107-2.306c0-10.799-6.868-19.993-16.475-23.455v25.701H65.19v-25.714c-9.627,3.451-16.513,12.655-16.513,23.469c0,0.777,0.037,1.546,0.107,2.306H31.358c-0.041-0.763-0.063-1.532-0.063-2.306c0-19.871,13.7-36.538,32.169-41.081H30.831C30.831,236.798,30.831,230.874,30.831,224.95z" />
-            </svg>
-            <span class="badge">UTN</span>
-        </div>
-        <div class="header-actions">
-            <a href="https://www.instagram.com/fnprosiuk/" target="_blank" rel="noopener noreferrer" class="header-credit">
-                Hecho por <strong>@fnprosiuk</strong>
-            </a>
-            <button id="open-config-btn" class="btn btn-secondary btn-icon-text" title="Configuración de la tabla">
-                <svg viewBox="0 0 24 24" width="16" height="16">
-                    <path fill="currentColor"
-                        d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
-                </svg>
-                <span>Configuración</span>
-            </button>
-            <button id="clear-data-btn" class="btn btn-secondary btn-icon-text"
-                title="Borrar todos los datos y reiniciar">
-                <svg viewBox="0 0 24 24" width="16" height="16">
-                    <path fill="currentColor"
-                        d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12Z" />
-                </svg>
-                <span>Borrar todo</span>
-            </button>
-            <button id="theme-toggle" class="btn-theme" aria-label="Cambiar tema">
-                <!-- Sun Icon -->
-                <svg class="sun-icon" viewBox="0 0 24 24" width="20" height="20">
-                    <path fill="currentColor"
-                        d="M12 7a5 5 0 1 1 0 10a5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6a3 3 0 0 0 0-6Zm0-9h2v3h-2V0Zm0 18h2v3h-2v-3ZM3.515 4.929l1.414-1.414L7.05 5.636L5.636 7.05L3.515 4.93Zm13.435 13.435l1.414-1.414l2.122 2.121l-1.414 1.414l-2.122-2.121ZM0 12h3v2H0v-2Zm18 0h3v2h-3v-2ZM4.929 20.485l-1.414-1.414l2.121-2.122l1.414 1.414l-2.121 2.122ZM19.071 5.636l-1.414-1.414l2.122-2.121l1.414 1.414l-2.122 2.121Z" />
-                </svg>
-                <!-- Moon Icon -->
-                <svg class="moon-icon" viewBox="0 0 24 24" width="20" height="20">
-                    <path fill="currentColor" d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
-                </svg>
-            </button>
+        <div class="nav-inner">
+            <!-- Brand Group (Logo + Nav Links) -->
+            <div class="nav-brand-group">
+                <div class="nav-logo">
+                    <div class="nav-logo-shield">
+                        <svg viewBox="30 180 70 105" width="30" height="30">
+                            <path fill="currentColor"
+                                d="M30.831,224.95h32.634c-18.469-4.542-32.169-21.21-32.169-41.081c0-0.774,0.022-1.543,0.063-2.306h17.425c-0.07,0.76-0.107,1.528-0.107,2.306c0,10.814,6.887,20.018,16.513,23.469v-25.714h16.863v25.701c9.606-3.462,16.475-12.656,16.475-23.455c0-0.778-0.037-1.546-0.107-2.306h17.425c0.041,0.763,0.063,1.532,0.063,2.306c0,19.871-13.7,36.538-32.169,41.081h31.535v17.771h-31.535c18.469,4.543,32.169,21.21,32.169,41.081c0,0.774-0.022,1.543-0.063,2.306h-17.425c0.07,-0.76,0.107,-1.528,0.107,-2.306c0,-10.799-6.868,-19.993-16.475,-23.455v25.701h-16.863v-25.714c-9.627,3.451-16.513,12.655-16.513,23.469c0,0.777,0.037,1.546,0.107,2.306h-17.425c-0.041,-0.763-0.063,-1.532-0.063,-2.306c0,-19.871,13.7,-36.538,32.169,-41.081h-32.634v-17.771z" />
+                        </svg>
+                    </div>
+                    <div class="nav-logo-text">
+                        <span class="nav-logo-utn">UTN</span>
+                        <span class="nav-logo-frbb">FRBB</span>
+                    </div>
+                </div>
+
+                <!-- Nav Links -->
+                <nav class="nav-links">
+                    <a href="#" class="nav-link nav-link-active" id="nav-inicio">Horarios</a>
+                </nav>
+            </div>
+
+            <!-- Credit -->
+            <div class="nav-right">
+                <a href="https://www.instagram.com/fnprosiuk/" target="_blank" rel="noopener noreferrer"
+                    class="header-credit">
+                    Hecho por <strong>@fnprosiuk</strong>
+                </a>
+            </div>
         </div>
     </header>
 
     <main class="app-layout">
         <!-- Panel Izquierdo: Controles -->
         <section class="panel-left">
-            <div class="panel-header">
-                <h2>Materias</h2>
-                <button id="add-subject-btn" class="btn btn-primary btn-icon-text">
-                    <svg viewBox="0 0 24 24" width="18" height="18">
-                        <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2Z" />
-                    </svg>
-                    <span>Añadir</span>
-                </button>
-            </div>
-
-            <div class="sync-status-card" id="sync-status-card">
-                <div class="sync-status-info">
-                    <svg viewBox="0 0 24 24" width="16" height="16" class="icon-sync">
-                        <path fill="currentColor"
-                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
-                    </svg>
-                    <span id="sync-status-text">Cargando horarios...</span>
+            <div class="panel-left-inner">
+                <div class="panel-header">
+                    <h2>Materias</h2>
+                    <button id="add-subject-btn" class="btn btn-primary btn-icon-text">
+                        <svg viewBox="0 0 24 24" width="18" height="18">
+                            <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2Z" />
+                        </svg>
+                        <span>Añadir</span>
+                    </button>
                 </div>
-                <button id="open-sync-btn" class="btn btn-secondary btn-small"
-                    title="Re-sincronizar horarios desde GitHub">
-                    <svg viewBox="0 0 24 24" width="14" height="14">
-                        <path fill="currentColor"
-                            d="M19 8l-4 4h3c0 3.31-2.69 6-6 6-1.01 0-1.97-.25-2.8-.7l-1.46 1.46C8.97 19.54 10.43 20 12 20c4.42 0 8-3.58 8-8h3l-4-4zM6 12c0-3.31 2.69-6 6-6 1.01 0 1.97.25 2.8.7l1.46-1.46C15.03 4.46 13.57 4 12 4c-4.42 0-8 3.58-8 8H1l4 4 4-4H6z" />
-                    </svg>
-                </button>
-            </div>
 
-            <div id="subjects-container" class="subjects-list">
-                <!-- Se poblará dinámicamente con JavaScript -->
-                <div class="empty-state">
-                    <svg viewBox="0 0 24 24" width="48" height="48">
-                        <path fill="currentColor"
-                            d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2m-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2Z" />
-                    </svg>
-                    <p>No tenés materias cargadas.</p>
-                    <p class="subtext">Hacé clic en "Añadir materia" para comenzar.</p>
+                <div class="sync-status-card" id="sync-status-card">
+                    <div class="sync-status-info">
+                        <svg viewBox="0 0 24 24" width="16" height="16" class="icon-sync">
+                            <path fill="currentColor"
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+                        </svg>
+                        <span id="sync-status-text">Cargando horarios...</span>
+                    </div>
+                    <button id="open-sync-btn" class="btn btn-secondary btn-small"
+                        title="Re-sincronizar horarios desde GitHub">
+                        <svg viewBox="0 0 24 24" width="14" height="14">
+                            <path fill="currentColor"
+                                d="M19 8l-4 4h3c0 3.31-2.69 6-6 6-1.01 0-1.97-.25-2.8-.7l-1.46 1.46C8.97 19.54 10.43 20 12 20c4.42 0 8-3.58 8-8h3l-4-4zM6 12c0-3.31 2.69-6 6-6 1.01 0 1.97.25 2.8.7l1.46-1.46C15.03 4.46 13.57 4 12 4c-4.42 0-8 3.58-8 8H1l4 4 4-4H6z" />
+                        </svg>
+                    </button>
+                </div>
+
+                <div id="subjects-container" class="subjects-list">
+                    <!-- Se poblará dinámicamente con JavaScript -->
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" width="48" height="48">
+                            <path fill="currentColor"
+                                d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2m-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2Z" />
+                        </svg>
+                        <p>No tenés materias cargadas.</p>
+                        <p class="subtext">Hacé clic en "Añadir materia" para comenzar.</p>
+                    </div>
                 </div>
             </div>
         </section>
@@ -328,14 +325,17 @@
         </div>
     </div>
 
-    <!-- Modal de Configuración de Tabla -->
+    <!-- Modal de Configuración (ampliado) -->
     <div id="config-modal" class="modal-overlay hidden">
-        <div class="modal-container" style="max-width: 450px;">
+        <div class="modal-container" style="max-width: 480px;">
             <div class="modal-header">
-                <h3>Configuración de Tabla</h3>
+                <h3>Configuración</h3>
                 <button id="config-close-btn" class="btn-close" aria-label="Cerrar modal">&times;</button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" style="display:flex;flex-direction:column;gap:0;">
+
+                <!-- Tabla -->
+                <div class="config-section-title">Tabla</div>
                 <div class="config-group">
                     <label class="config-checkbox-label">
                         <input type="checkbox" id="cfg-show-weekend">
@@ -344,14 +344,61 @@
                     <p class="config-desc">Visualiza u oculta las columnas del fin de semana en la tabla de horarios.
                     </p>
                 </div>
-
-                <div class="config-group" style="margin-top: 1.25rem;">
+                <div class="config-group">
                     <label class="config-checkbox-label">
                         <input type="checkbox" id="cfg-crop-timerange">
                         <span>Ajustar rango horario vertical</span>
                     </label>
                     <p class="config-desc">Limita las horas iniciales y finales de la grilla al rango de las materias
                         activas.</p>
+                </div>
+
+                <!-- Apariencia -->
+                <div class="config-section-title" style="margin-top:1rem;">Apariencia</div>
+                <div class="config-group config-row">
+                    <div class="config-row-info">
+                        <span class="config-row-label">Tema de interfaz</span>
+                        <span class="config-row-desc" id="cfg-theme-desc">Modo oscuro activo</span>
+                    </div>
+                    <button id="cfg-theme-toggle-btn" type="button" class="btn btn-secondary config-action-btn"
+                        title="Cambiar tema claro u oscuro">
+                        <svg viewBox="0 0 24 24" width="16" height="16">
+                            <path fill="currentColor"
+                                d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z" />
+                        </svg>
+                        <span id="cfg-theme-btn-text">Cambiar a Claro</span>
+                    </button>
+                </div>
+
+                <!-- Datos -->
+                <div class="config-section-title" style="margin-top:1rem;">Datos</div>
+                <div class="config-group config-row">
+                    <div class="config-row-info">
+                        <span class="config-row-label">Actualizar horarios</span>
+                        <span class="config-row-desc" id="sync-status-text">Sincronizar desde el servidor</span>
+                    </div>
+                    <button id="open-sync-btn" class="btn btn-secondary config-action-btn"
+                        title="Re-sincronizar horarios desde GitHub">
+                        <svg viewBox="0 0 24 24" width="16" height="16">
+                            <path fill="currentColor"
+                                d="M19 8l-4 4h3c0 3.31-2.69 6-6 6-1.01 0-1.97-.25-2.8-.7l-1.46 1.46C8.97 19.54 10.43 20 12 20c4.42 0 8-3.58 8-8h3l-4-4zM6 12c0-3.31 2.69-6 6-6 1.01 0 1.97.25 2.8.7l1.46-1.46C15.03 4.46 13.57 4 12 4c-4.42 0-8 3.58-8 8H1l4 4 4-4H6z" />
+                        </svg>
+                        <span>Actualizar</span>
+                    </button>
+                </div>
+                <div class="config-group config-row">
+                    <div class="config-row-info">
+                        <span class="config-row-label">Borrar todo</span>
+                        <span class="config-row-desc">Elimina todas las materias y vuelve al estado inicial</span>
+                    </div>
+                    <button id="clear-data-btn" class="btn btn-danger config-action-btn"
+                        title="Borrar todos los datos y reiniciar">
+                        <svg viewBox="0 0 24 24" width="16" height="16">
+                            <path fill="currentColor"
+                                d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12Z" />
+                        </svg>
+                        <span>Borrar</span>
+                    </button>
                 </div>
             </div>
             <div class="modal-footer">
@@ -426,29 +473,14 @@
         </div>
     </div>
 
-    <!-- Footer para barra de sistema retro -->
-    <footer class="app-footer">
-        <div class="footer-center">
-        </div>
-        <div class="footer-right-links">
-            <a href="https://www.frbb.utn.edu.ar/utnfrbb/index.php/calendario-academico/" target="_blank" rel="noopener"
-                class="dock-link" title="Ver Calendario Académico UTN FRBB">
-                <svg viewBox="0 0 24 24" width="12" height="12">
-                    <path fill="currentColor"
-                        d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm0 16H5V8h14v11zm-5-5H7v-2h7v2z" />
-                </svg>
-                <span>Calendario académico</span>
-            </a>
-            <a href="https://www.frbb.utn.edu.ar/sysacad/" target="_blank" rel="noopener" class="dock-link"
-                title="Ingresar a Sysacad UTN FRBB">
-                <svg viewBox="0 0 24 24" width="12" height="12">
-                    <path fill="currentColor"
-                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z" />
-                </svg>
-                <span>Sysacad</span>
-            </a>
-        </div>
-    </footer>
+    <!-- FAB Configuración -->
+    <button id="open-config-btn" id="fab-config-btn" class="fab-config" title="Configuración"
+        aria-label="Abrir configuración">
+        <svg viewBox="0 0 24 24" width="22" height="22">
+            <path fill="currentColor"
+                d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
+        </svg>
+    </button>
 
     <script src="app.js"></script>
 </body>

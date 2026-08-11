@@ -18,11 +18,32 @@ let state = {
 // 2. Datos de Ejemplo (No utilizados)
 
 // 3. Inicialización del Tema
+function applyTheme(themeName) {
+    const themeClass = themeName === 'light' ? 'theme-light' : 'theme-dark';
+    document.body.className = themeClass;
+    document.documentElement.className = themeClass;
+    localStorage.setItem('horauni_theme', themeName);
+
+    const themeDesc = document.getElementById('cfg-theme-desc');
+    const themeBtnText = document.getElementById('cfg-theme-btn-text');
+
+    if (themeDesc) {
+        themeDesc.textContent = themeName === 'light' ? 'Modo claro activo' : 'Modo oscuro activo';
+    }
+    if (themeBtnText) {
+        themeBtnText.textContent = themeName === 'light' ? 'Cambiar a Oscuro' : 'Cambiar a Claro';
+    }
+}
+
+function toggleTheme() {
+    const currentTheme = localStorage.getItem('horauni_theme') || 'dark';
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    applyTheme(newTheme);
+}
+
 function initTheme() {
-    const savedTheme = localStorage.getItem('horauni_theme');
-    const theme = (savedTheme === 'dark') ? 'theme-dark' : 'theme-light';
-    document.body.className = theme;
-    document.documentElement.className = theme;
+    const savedTheme = localStorage.getItem('horauni_theme') || 'dark';
+    applyTheme(savedTheme);
 }
 
 // 3b. Popup de Confirmación Personalizado
@@ -72,6 +93,7 @@ function loadState() {
         loadSampleData();
     }
     loadOfficialState(); // Cargar base de datos oficial
+    updateActiveSubjectsFromOfficial(); // Migrar materias activas con nueva estructura
     ensureUniqueSubjectColors();
 }
 
@@ -111,6 +133,34 @@ function loadOfficialState() {
     state.officialUpdate = savedUpdate || null;
 
     updateSyncStatusUI();
+}
+
+function updateActiveSubjectsFromOfficial() {
+    if (!state.officialSubjects || state.officialSubjects.length === 0) return;
+
+    let updated = false;
+    state.subjects.forEach(subject => {
+        if (subject.isOfficial) {
+            const officialSub = state.officialSubjects.find(s => s.id === subject.id);
+            if (officialSub) {
+                subject.commissions = officialSub.commissions;
+                
+                // Validar que la selección actual siga existiendo
+                const selectedCommId = state.selections[subject.id];
+                if (selectedCommId && selectedCommId !== 'none') {
+                    const exists = subject.commissions.some(c => c.id === selectedCommId);
+                    if (!exists) {
+                        state.selections[subject.id] = 'none';
+                    }
+                }
+                updated = true;
+            }
+        }
+    });
+
+    if (updated) {
+        saveState();
+    }
 }
 
 function formatSyncDate(date) {
@@ -176,6 +226,12 @@ function processOfficialHTML(htmlText) {
 
     saveOfficialState();
     updateSyncStatusUI();
+    
+    // Actualizar materias en curso con la nueva estructura
+    updateActiveSubjectsFromOfficial();
+    renderSubjectsList();
+    updateTimetable();
+    
     return subjects;
 }
 
@@ -282,15 +338,19 @@ function parseOfficialHTML(htmlText) {
                             };
                         }
 
-                        if (!parsedSubjects[subjectKey].commissions[commission]) {
-                            parsedSubjects[subjectKey].commissions[commission] = {
-                                id: 'c_official_' + subjectKey.toLowerCase().replace(/[^a-z0-9]/g, '_') + '_' + commission.toLowerCase().replace(/[^a-z0-9]/g, '_'),
-                                name: `Comisión ${commission}`,
+                        // Agrupar usando comisión + docente para separar si el docente es distinto
+                        const commissionKey = `${commission}_${teacher}`;
+
+                        if (!parsedSubjects[subjectKey].commissions[commissionKey]) {
+                            parsedSubjects[subjectKey].commissions[commissionKey] = {
+                                id: 'c_official_' + subjectKey.toLowerCase().replace(/[^a-z0-9]/g, '_') + '_' + commissionKey.toLowerCase().replace(/[^a-z0-9]/g, '_'),
+                                commissionNumber: commission,
+                                teacherName: teacher,
                                 slots: []
                             };
                         }
 
-                        const slots = parsedSubjects[subjectKey].commissions[commission].slots;
+                        const slots = parsedSubjects[subjectKey].commissions[commissionKey].slots;
                         const duplicate = slots.some(s => s.day === dayVal && s.startTime === startTime && s.endTime === endTime);
                         if (!duplicate) {
                             slots.push({
@@ -308,9 +368,42 @@ function parseOfficialHTML(htmlText) {
         }
     });
 
-    // Convertir comisiones de objeto a array
+    // Convertir comisiones de objeto a array y asignar nombres (con sufijo A/B/C si hay duplicados)
     return Object.values(parsedSubjects).map(sub => {
-        sub.commissions = Object.values(sub.commissions);
+        const commissionList = Object.values(sub.commissions);
+        
+        // Contar cuántas veces se repite cada número de comisión en esta materia
+        const commissionCounts = {};
+        commissionList.forEach(comm => {
+            const num = comm.commissionNumber;
+            commissionCounts[num] = (commissionCounts[num] || 0) + 1;
+        });
+
+        // Índice de sufijo por número de comisión (para asignar A, B, C...)
+        const commissionSuffixIndex = {};
+
+        sub.commissions = commissionList.map(comm => {
+            const num = comm.commissionNumber;
+            const hasMultiple = commissionCounts[num] > 1;
+
+            let name;
+            if (hasMultiple) {
+                if (commissionSuffixIndex[num] === undefined) commissionSuffixIndex[num] = 0;
+                const suffix = String.fromCharCode(65 + commissionSuffixIndex[num]); // A, B, C...
+                commissionSuffixIndex[num]++;
+                name = `Comisión ${num}${suffix}`;
+            } else {
+                name = `Comisión ${num}`;
+            }
+            
+            return {
+                id: comm.id,
+                name,
+                teacherName: comm.teacherName,
+                slots: comm.slots
+            };
+        });
+        
         return sub;
     });
 }
@@ -394,8 +487,16 @@ function generateColorHue() {
 }
 
 function timeStrToMinutes(timeStr) {
+    if (!timeStr) return 0;
     const [h, m] = timeStr.split(':').map(Number);
     return h * 60 + m;
+}
+
+function minutesToTimeStr(mins) {
+    if (isNaN(mins)) return '00:00';
+    const h = Math.floor(mins / 60) % 24;
+    const m = mins % 60;
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
 }
 
 function timeStrToSlotIndex(timeStr) {
@@ -823,10 +924,13 @@ function renderSubjectsList() {
                 return `${dayName} de ${s.startTime} a ${s.endTime}${classroomInfo}`;
             }).join(', ');
 
+            const teacherLine = comm.teacherName ? `<span class="commission-teacher">${comm.teacherName}</span>` : '';
+
             label.innerHTML = `
                 <input type="radio" class="commission-radio" name="comm_${subject.id}" value="${comm.id}" ${selectedCommId === comm.id ? 'checked' : ''}>
                 <div class="commission-info">
                     <span class="commission-name">${comm.name}</span>
+                    ${teacherLine}
                     <span class="commission-time-summary">${timesSummary}</span>
                 </div>
             `;
@@ -949,10 +1053,17 @@ function updateTimetable() {
             const b = activeSlots[j];
 
             if (a.day === b.day && Math.max(a.startMins, b.startMins) < Math.min(a.endMins, b.endMins)) {
+                const overlapStartMins = Math.max(a.startMins, b.startMins);
+                const overlapEndMins = Math.min(a.endMins, b.endMins);
+
                 collisions.push({
                     day: a.day,
                     slotA: a,
-                    slotB: b
+                    slotB: b,
+                    overlapStartMins,
+                    overlapEndMins,
+                    overlapStartStr: minutesToTimeStr(overlapStartMins),
+                    overlapEndStr: minutesToTimeStr(overlapEndMins)
                 });
 
                 conflictingSlotKeys.add(`${a.subjectId}_${a.commissionId}_${a.day}_${a.startMins}_${a.endMins}`);
@@ -984,20 +1095,33 @@ function updateTimetable() {
             );
             const subjectNames = [...new Set(overlaps.map(o => o.subjectName))].sort();
             const conflictGroupKey = `${slot.day}_${subjectNames.join('|')}`;
+            const isFirstInGroup = !renderedConflictKeys.has(conflictGroupKey);
+
+            const maxStart = Math.max(...overlaps.map(o => o.startMins));
+            const minEnd = Math.min(...overlaps.map(o => o.endMins));
+            const conflictTimeStr = `${minutesToTimeStr(maxStart)} - ${minutesToTimeStr(minEnd)}`;
 
             let conflictHTML = '';
-            if (!renderedConflictKeys.has(conflictGroupKey)) {
+            if (isFirstInGroup) {
                 renderedConflictKeys.add(conflictGroupKey);
-                if (subjectNames.length > 1) {
-                    const last = subjectNames.pop();
-                    conflictHTML = `Conflicto entre <strong>${subjectNames.join(', ')}</strong> y <strong>${last}</strong>`;
+                const nameList = [...subjectNames];
+                if (nameList.length > 1) {
+                    const last = nameList.pop();
+                    conflictHTML = `Conflicto (${conflictTimeStr}) entre <strong>${nameList.join(', ')}</strong> y <strong>${last}</strong>`;
                 } else {
-                    conflictHTML = `Conflicto en <strong>${slot.subjectName}</strong>`;
+                    conflictHTML = `Conflicto (${conflictTimeStr}) en <strong>${slot.subjectName}</strong>`;
                 }
+                eventEl.style.zIndex = '5';
+            } else {
+                eventEl.style.zIndex = '1';
+                eventEl.classList.add('in-conflict-overlay');
             }
 
+            const tooltipText = `Conflicto de horario (${conflictTimeStr}): ${subjectNames.join(' vs ')}`;
+            eventEl.title = tooltipText;
+
             eventEl.innerHTML = conflictHTML ? `
-                <div class="event-subject-conflict" title="Superposición de horarios">${conflictHTML}</div>
+                <div class="event-subject-conflict" title="${tooltipText}">${conflictHTML}</div>
             ` : '';
         } else {
             const commTitle = slot.commissionName ? `<div class="event-commission" title="Comisión: ${slot.commissionName}">${slot.commissionName}</div>` : '';
@@ -1034,7 +1158,7 @@ function updateTimetable() {
             item.className = 'collision-item';
 
             const dayName = getDayName(col.day);
-            const timeRange = `${slotToTimeStr(col.overlapStart)} - ${slotToTimeStr(col.overlapEnd)}`;
+            const timeRange = `${col.overlapStartStr} - ${col.overlapEndStr}`;
 
             item.innerHTML = `
                 <div class="collision-text">
@@ -1355,17 +1479,12 @@ if (addSubjectBtn) addSubjectBtn.addEventListener('click', openAddSubjectModal);
 
 const themeToggleBtn = document.getElementById('theme-toggle');
 if (themeToggleBtn) {
-    themeToggleBtn.addEventListener('click', () => {
-        if (document.body.classList.contains('theme-dark')) {
-            document.body.className = 'theme-light';
-            document.documentElement.className = 'theme-light';
-            localStorage.setItem('horauni_theme', 'light');
-        } else {
-            document.body.className = 'theme-dark';
-            document.documentElement.className = 'theme-dark';
-            localStorage.setItem('horauni_theme', 'dark');
-        }
-    });
+    themeToggleBtn.addEventListener('click', toggleTheme);
+}
+
+const cfgThemeToggleBtn = document.getElementById('cfg-theme-toggle-btn');
+if (cfgThemeToggleBtn) {
+    cfgThemeToggleBtn.addEventListener('click', toggleTheme);
 }
 
 const clearDataBtn = document.getElementById('clear-data-btn');

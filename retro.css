@@ -55,18 +55,18 @@ body.theme-dark {
     color: #e2e8f0 !important;
 
     --bg-primary: #080c12 !important;
-    --bg-secondary: #0c131d !important;
-    --bg-tertiary: #131c2b !important;
-    --border-color: #1a2c42 !important;
-    --border-color-muted: #101c2c !important;
+    --bg-secondary: #172435 !important;
+    --bg-tertiary: #1f2d43 !important;
+    --border-color: #294363 !important;
+    --border-color-muted: #1e3048 !important;
 
     --text-primary: #ffffff !important;
     --text-secondary: #ff9f0a !important;
-    --text-muted: #64748b !important;
+    --text-muted: #7c8da5 !important;
 
     --color-brand: #0a84ff !important;
     --color-brand-hover: #0066cc !important;
-    --color-brand-light: #162235 !important;
+    --color-brand-light: #20314b !important;
 }
 
 body.theme-light {
@@ -316,10 +316,30 @@ input[type="time"]:focus {
 /* Conflictos */
 .timetable-event.in-conflict {
     border: 1px solid #ef4444 !important;
-    background-color: rgba(239, 68, 68, 0.08) !important;
-    color: #fca5a5 !important;
+    background-color: rgba(120, 15, 25, 0.92) !important;
+    color: #ffffff !important;
     border-left: 4px solid #ef4444 !important;
     text-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.4) !important;
+}
+
+.timetable-event.in-conflict.in-conflict-overlay {
+    background: rgba(239, 68, 68, 0.12) !important;
+    border: 1px dashed #ef4444 !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    pointer-events: none !important;
+}
+
+.timetable-event.in-conflict .event-subject-conflict {
+    color: #fca5a5 !important;
+    font-size: 0.75rem !important;
+}
+
+.timetable-event.in-conflict .event-subject-conflict strong {
+    color: #ffffff !important;
 }
 
 /* 8. Panel de Búsqueda */
